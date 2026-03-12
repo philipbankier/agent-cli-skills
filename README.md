@@ -1,0 +1,142 @@
+# agent-cli-skills
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-skill-blue)](skills/claude-code/)
+[![Codex CLI](https://img.shields.io/badge/Codex%20CLI-skill-green)](skills/codex-cli/)
+[![Gemini CLI](https://img.shields.io/badge/Gemini%20CLI-skill-red)](skills/gemini-cli/)
+
+**The open-source skill library for AI CLI agents.**
+
+Teach Claude Code, Codex CLI, and Gemini CLI to automate themselves — non-interactive scripting, structured output, multi-agent orchestration, CI/CD integration, and skill authoring.
+
+## Why This Exists
+
+AI CLI agents ship with powerful non-interactive modes, but they're underdocumented. Flags have non-obvious interactions (`stream-json` silently fails without `--verbose` in Claude Code), output formats differ between tools, and there's no single resource that covers all three. Each skill in this repo packages the tested patterns, gotchas, and production-ready recipes so your agent — or you — gets it right the first time.
+
+This repo is also a practical guide to **writing skills** for each CLI platform, including a cross-platform skill design guide for building portable agent extensions.
+
+## Quick Install
+
+Each skill is independently installable. Pick the CLI you use:
+
+| CLI | One-Liner Install |
+|-----|-------------------|
+| **Claude Code** | `git clone https://github.com/philipbankier/agent-cli-skills.git .claude/skills/agent-cli-skills --depth 1` |
+| **Codex CLI** | `git clone https://github.com/philipbankier/agent-cli-skills.git .agents/skills/agent-cli-skills --depth 1` |
+| **Gemini CLI** | `git clone https://github.com/philipbankier/agent-cli-skills.git .gemini/skills/agent-cli-skills --depth 1` |
+
+Or use the install scripts for a targeted single-skill install:
+
+```bash
+# Install only the Claude Code skill
+curl -fsSL https://raw.githubusercontent.com/philipbankier/agent-cli-skills/main/install/install-claude.sh | bash
+
+# Install only the Codex CLI skill
+curl -fsSL https://raw.githubusercontent.com/philipbankier/agent-cli-skills/main/install/install-codex.sh | bash
+
+# Install only the Gemini CLI skill
+curl -fsSL https://raw.githubusercontent.com/philipbankier/agent-cli-skills/main/install/install-gemini.sh | bash
+```
+
+## What's Inside
+
+### Skills (per-CLI, independently installable)
+
+| Skill | CLI | Non-Interactive | Structured Output | Streaming | Unique Strength |
+|-------|-----|-----------------|-------------------|-----------|-----------------|
+| [**claude-code**](skills/claude-code/SKILL.md) | Claude Code | `claude -p` | `--json-schema` | NDJSON | CC-Bridge API wrapper, SDK integration |
+| [**codex-cli**](skills/codex-cli/SKILL.md) | Codex CLI | `codex exec` | `--json` | JSON events | Session resume, AGENTS.md (cross-tool config) |
+| [**gemini-cli**](skills/gemini-cli/SKILL.md) | Gemini CLI | `gemini -p` | `--output-format json` | JSONL | Free tier (1000 req/day), extensions system |
+
+### CLI Comparison At-a-Glance
+
+| Feature | Claude Code | Codex CLI | Gemini CLI |
+|---------|-------------|-----------|------------|
+| Non-interactive flag | `claude -p "prompt"` | `codex exec "prompt"` | `gemini -p "prompt"` |
+| JSON output | `--output-format json` | `--json` | `--output-format json` |
+| Auto-approve | `--dangerously-skip-permissions` | `--full-auto` / `--yolo` | `-y` |
+| Config file | `CLAUDE.md` | `AGENTS.md` | `GEMINI.md` |
+| Skill directory | `.claude/skills/` | `.agents/skills/` | `.gemini/skills/` |
+| Install | `npm i -g @anthropic-ai/claude-code` | `npm i -g @openai/codex` | `npm i -g @google/gemini-cli` |
+
+See [cross-platform/comparison.md](cross-platform/comparison.md) for the full feature matrix.
+
+### Cross-Platform Guides
+
+- [CLI Comparison Matrix](cross-platform/comparison.md) — side-by-side feature reference
+- [Migration Guide](cross-platform/migration-guide.md) — porting automations between CLIs
+- [Multi-Agent Patterns](cross-platform/patterns/parallel-agents.md) — orchestration across all 3
+- [CI/CD Templates](cross-platform/patterns/ci-cd-matrix.md) — GitHub Actions for each CLI
+- [Structured Output Patterns](cross-platform/patterns/structured-output.md) — JSON schema per CLI
+
+### Skill Authoring
+
+Want to build your own skills? These guides cover each platform's skill format and an advanced cross-platform approach:
+
+- [Write skills for Claude Code](skill-authoring/claude-code.md)
+- [Write skills for Codex CLI](skill-authoring/codex-cli.md)
+- [Write skills for Gemini CLI](skill-authoring/gemini-cli.md)
+- [Cross-platform skill design](skill-authoring/cross-platform.md) — one skill, three CLIs
+
+## Flagship Example: Multi-Perspective Debate Engine
+
+The debate engine spawns 5 AI "debaters" in parallel — Optimist, Skeptic, Historian, Futurist, and Practitioner — each with structured JSON output. A Moderator synthesizes the arguments. Available for all three CLIs:
+
+```bash
+# Claude Code
+./skills/claude-code/examples/debate-engine/debate.sh "Should AI replace teachers?"
+
+# Codex CLI
+./skills/codex-cli/examples/debate-engine/debate.sh "Should AI replace teachers?"
+
+# Gemini CLI
+./skills/gemini-cli/examples/debate-engine/debate.sh "Should AI replace teachers?"
+```
+
+Each version uses the same pattern but with platform-specific flags and idioms. Compare them to understand the differences between CLIs.
+
+## Project Structure
+
+```
+agent-cli-skills/
+├── skills/
+│   ├── claude-code/          # Claude Code automation skill
+│   ├── codex-cli/            # Codex CLI automation skill
+│   └── gemini-cli/           # Gemini CLI automation skill
+├── cross-platform/           # Comparison, migration, shared patterns
+├── skill-authoring/          # How to write skills for each CLI
+├── install/                  # One-liner install scripts
+├── CONTRIBUTING.md
+└── LICENSE
+```
+
+## Contributing
+
+Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+Most valuable contributions:
+- New multi-agent examples for any CLI
+- Flag documentation updates as CLIs evolve
+- Code snippets in additional languages
+- Corrections to gotchas or flag interactions
+- New cross-platform patterns
+
+## Disclaimer
+
+> **This is an independent community project and is not affiliated with, endorsed by, or approved by Anthropic, OpenAI, or Google.** Use at your own risk.
+
+- **Terms of Service** — Using CLI agents for automation may be subject to each vendor's usage policies. Review [Anthropic's](https://www.anthropic.com/legal/aup), [OpenAI's](https://openai.com/policies/usage-policies), and [Google's](https://ai.google.dev/terms) terms before deploying in production.
+- **CC-Bridge** — The bridge proxies Claude Code's CLI authentication. This is a community pattern, not an officially supported integration.
+- **No stability guarantees** — CLI interfaces can change between versions without notice.
+
+## Sources & Credits
+
+- [CC-Bridge](https://github.com/ranaroussi/cc-bridge) by Ran Aroussi
+- [Print Mode State Machine](https://gist.github.com/danialhasan/abbf1d7e721475717e5d07cee3244509) by Danial Hasan
+- [Claude Code documentation](https://docs.anthropic.com/en/docs/claude-code) by Anthropic
+- [Codex CLI documentation](https://developers.openai.com/codex/cli/) by OpenAI
+- [Gemini CLI documentation](https://github.com/google-gemini/gemini-cli) by Google
+
+## License
+
+MIT — see [LICENSE](LICENSE).
