@@ -1,13 +1,14 @@
 # Gemini CLI JSON Output
 
-Output shapes for `--output-format json` and `--output-format jsonl`.
+Output shapes for `--output-format json` and `--output-format stream-json`.
 
 ## --output-format json
 
-Returns a single JSON object containing the response, statistics, and any errors:
+Returns a single JSON object containing the session ID, response, statistics, and any errors:
 
 ```json
 {
+  "session_id": "abc123",
   "response": "The model's text response here",
   "statistics": {
     "model_requests": 1,
@@ -38,6 +39,7 @@ When an error occurs:
 
 ```json
 {
+  "session_id": "abc123",
   "response": null,
   "statistics": {},
   "error": {
@@ -47,9 +49,9 @@ When an error occurs:
 }
 ```
 
-## --output-format jsonl
+## --output-format stream-json
 
-Streaming JSONL (newline-delimited JSON). Each line is a self-contained event:
+Streaming JSON events. Each event is a JSON object:
 
 ### Event Types
 
@@ -80,11 +82,11 @@ Streaming JSONL (newline-delimited JSON). Each line is a self-contained event:
 {"type": "statistics", "model_requests": 3, "input_tokens": 2000, "output_tokens": 500}
 ```
 
-### Parsing JSONL
+### Parsing Stream JSON
 
 ```bash
 # Stream and display content chunks
-gemini -p "Explain the architecture" --output-format jsonl | \
+gemini -p "Explain the architecture" --output-format stream-json | \
   while IFS= read -r line; do
     content=$(echo "$line" | jq -r 'select(.type == "content_chunk") | .content // empty')
     [ -n "$content" ] && echo -n "$content"
@@ -92,11 +94,11 @@ gemini -p "Explain the architecture" --output-format jsonl | \
 echo ""
 
 # Count tool calls
-gemini -p "Analyze the codebase" --output-format jsonl -y | \
+gemini -p "Analyze the codebase" --output-format stream-json -y | \
   jq -r 'select(.type == "tool_call") | .name' | sort | uniq -c
 
 # Extract statistics
-gemini -p "Review this code" --output-format jsonl | \
+gemini -p "Review this code" --output-format stream-json | \
   jq 'select(.type == "statistics")'
 ```
 
@@ -153,12 +155,12 @@ console.log(response.response);
 console.log(`Tokens: ${response.statistics.total_tokens}`);
 ```
 
-## JSON vs JSONL: When to Use Which
+## JSON vs Stream JSON: When to Use Which
 
 | Use Case | Format | Why |
 |---|---|---|
 | Simple scripting | `json` | Single object, easy to parse |
-| Real-time streaming | `jsonl` | See progress as it happens |
+| Real-time streaming | `stream-json` | See progress as it happens |
 | Token monitoring | `json` | Statistics in final object |
-| Tool call tracking | `jsonl` | See each tool call as it happens |
+| Tool call tracking | `stream-json` | See each tool call as it happens |
 | CI/CD pipelines | `json` | Deterministic single output |

@@ -36,9 +36,18 @@ Cross-platform content lives in `cross-platform/` and `skill-authoring/`.
 1. Fork the repo
 2. Create a branch: `git checkout -b my-contribution`
 3. Make your changes
-4. Test any code examples you added or modified
-5. Submit a PR with a clear description of what changed and why
+4. Test any code examples you added or modified against the actual CLI (`--help` output, real invocations)
+5. If you changed flags for one CLI, check whether `cross-platform/comparison.md` and `cross-platform/migration-guide.md` need updating too
+6. Submit a PR with a clear description of what changed and why
+
+## Reporting Issues
+
+Found an inaccurate flag, broken example, or missing feature? [Open an issue](../../issues/new/choose) using the appropriate template. Include the CLI version you tested against.
+
+## Security
+
+If you find a security issue in the install scripts or example code, please report it via [GitHub Issues](../../issues). This repo contains documentation and example scripts, not production services, so public reporting is appropriate.
 
 ## Code of Conduct
 
-Be helpful, be accurate, be kind. That's it.
+Be helpful, be accurate, be kind. We follow the spirit of the [Contributor Covenant](https://www.contributor-covenant.org/) — treat everyone with respect, assume good intent, and focus on making the project better.

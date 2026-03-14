@@ -7,23 +7,22 @@ Complete reference for `codex exec` (alias: `codex e`) non-interactive mode flag
 | Flag | Short | Description | Default |
 |------|-------|-------------|---------|
 | `--full-auto` | — | Automation preset: workspace-write sandbox + on-request approvals | Off |
-| `--dangerously-bypass-approvals-and-sandbox` | `--yolo` | Skip all approvals and sandboxing | Off |
-| `--json` | — | Output newline-delimited JSON events | Off |
-| `--experimental-json` | — | Richer JSON output (unstable, may change) | Off |
+| `--dangerously-bypass-approvals-and-sandbox` | — | Skip all approvals and sandboxing | Off |
+| `--json` | — | Output JSONL events (`thread.started`, `turn.started`, `item.completed`, `turn.completed`) | Off |
 | `-o <file>` | `--output-last-message` | Write assistant's final message to file | — |
 | `--output-schema <schema>` | — | Validate tool output against JSON Schema | — |
 | `--ephemeral` | — | Don't persist session to disk | Off (sessions persist) |
 | `-s <mode>` | `--sandbox` | Sandbox policy: `read-only`, `workspace-write`, `danger-full-access` | `workspace-write` |
 | `-c key=value` | — | Global config override | — |
-| `--model <name>` | — | Model to use | o4-mini |
+| `--model <name>` | — | Model to use | Depends on user config |
 | `-` | — | Read prompt from stdin | — |
 
 ## Resume Flags
 
 | Command | Description |
 |---------|-------------|
-| `codex exec resume --last` | Resume the most recent session |
-| `codex exec resume --all` | List all sessions, pick one to resume |
+| `codex resume --last` | Resume the most recent session |
+| `codex resume --all` | List all sessions, pick one to resume |
 
 ## Sandbox Modes
 
@@ -52,7 +51,6 @@ Plus the workspace must be marked as trusted. Without all conditions, approval p
 | `--json` + `-o file` | JSON to stdout, final message to file |
 | `--full-auto` + `-s read-only` | Read-only overrides full-auto's workspace-write default |
 | `--ephemeral` + `resume` | Error — can't resume an ephemeral session |
-| `--json` + `--experimental-json` | `--experimental-json` takes precedence |
 | `-o file` + `resume --last` | Writes the resumed session's final message |
 
 ## Config Overrides

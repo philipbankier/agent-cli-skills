@@ -55,8 +55,8 @@ ls "$OUTDIR/"
 # iterative-review.sh — Analyze, then fix, then verify
 
 codex exec "Read the codebase and identify the top 3 bugs"
-codex exec resume --last "Fix the highest-priority bug you found" --full-auto
-codex exec resume --last "Verify the fix doesn't break any existing tests" -o review.md
+codex resume --last "Fix the highest-priority bug you found" --full-auto
+codex resume --last "Verify the fix doesn't break any existing tests" -o review.md
 echo "Review saved to review.md"
 ```
 
@@ -107,7 +107,7 @@ import subprocess
 import json
 
 def codex_run_json(prompt: str) -> list[dict]:
-    """Run Codex with --json and return parsed events."""
+    """Run Codex with --json and return parsed JSONL events."""
     result = subprocess.run(
         ["codex", "exec", prompt, "--json", "--ephemeral"],
         capture_output=True, text=True
@@ -120,8 +120,13 @@ def codex_run_json(prompt: str) -> list[dict]:
     return events
 
 events = codex_run_json("List all functions in main.py")
+# Event types: thread.started, turn.started, item.completed, turn.completed
 for event in events:
-    print(f"{event.get('type')}: {json.dumps(event)[:100]}")
+    if event.get('type') == 'item.completed':
+        item = event.get('item', {})
+        if item.get('type') == 'message':
+            for c in item.get('content', []):
+                print(c.get('text', ''))
 ```
 
 ### Batch Processing
@@ -172,9 +177,11 @@ function codexRun(prompt, options = {}) {
     timeout: 120000,
   });
 
-  return options.json
-    ? result.trim().split('\n').filter(Boolean).map(JSON.parse)
-    : result.trim();
+  if (options.json) {
+    // JSONL events: thread.started, turn.started, item.completed, turn.completed
+    return result.trim().split('\n').filter(Boolean).map(JSON.parse);
+  }
+  return result.trim();
 }
 
 // Usage

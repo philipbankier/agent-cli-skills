@@ -20,7 +20,7 @@ Side-by-side reference for Claude Code, Codex CLI, and Gemini CLI non-interactiv
 | **Shorthand** | `claude -p` | `codex e` | — |
 | **Pipe input** | `echo "prompt" \| claude -p` | `echo "prompt" \| codex exec -` | `echo "prompt" \| gemini` |
 | **File input** | `claude -p "analyze" < file.py` | — | — |
-| **Auto-approve** | `--dangerously-skip-permissions` | `--full-auto` + `--yolo` | `-y` |
+| **Auto-approve** | `--dangerously-skip-permissions` | `--full-auto` + `--dangerously-bypass-approvals-and-sandbox` | `-y` / `--yolo` |
 | **Exit codes** | 0=success, non-zero=error | 0=success, non-zero=error | 0=success, 1=error, 42=input error, 53=turn limit |
 
 ## Output Formats
@@ -28,8 +28,8 @@ Side-by-side reference for Claude Code, Codex CLI, and Gemini CLI non-interactiv
 | | Claude Code | Codex CLI | Gemini CLI |
 |---|---|---|---|
 | **Plain text** | `--output-format text` (default) | Default | Default |
-| **JSON** | `--output-format json` | `--json` / `--experimental-json` | `--output-format json` |
-| **Streaming** | `--output-format stream-json` | — | `--output-format jsonl` |
+| **JSON** | `--output-format json` | `--json` | `--output-format json` |
+| **Streaming** | `--output-format stream-json` | — | `--output-format stream-json` |
 | **Output to file** | Redirect with `>` | `-o file.txt` / `--output-last-message` | Redirect with `>` |
 | **Structured output** | `--json-schema '{...}'` → `.structured_output` | `--output-schema` | — |
 
@@ -37,10 +37,10 @@ Side-by-side reference for Claude Code, Codex CLI, and Gemini CLI non-interactiv
 
 | | Claude Code | Codex CLI | Gemini CLI |
 |---|---|---|---|
-| **Stateless** | `--no-session-persistence` | `--ephemeral` | Default (no persistence) |
+| **Stateless** | `--no-session-persistence` | `--ephemeral` | Default |
 | **Named session** | `--session-id <id>` | — | — |
-| **Resume last** | `--continue` | `codex exec resume --last` | — |
-| **Resume all** | — | `codex exec resume --all` | — |
+| **Resume last** | `--continue` | `codex resume --last` | `-r` / `--resume` |
+| **Resume all** | — | `codex resume --all` | `--list-sessions` |
 
 ## Model Selection
 
@@ -48,15 +48,15 @@ Side-by-side reference for Claude Code, Codex CLI, and Gemini CLI non-interactiv
 |---|---|---|---|
 | **Flag** | `--model <name>` | `--model <name>` | `-m <name>` |
 | **Aliases** | `sonnet`, `opus`, `haiku` | — | — |
-| **Default** | Claude Sonnet 4 | o4-mini | Gemini 2.5 Pro |
+| **Default** | Claude Sonnet 4 | Depends on user config | Gemini 2.5 Pro |
 | **Top models** | Opus 4, Sonnet 4, Haiku 3.5 | o4-mini, GPT-4.1 | Gemini 3 Pro, Gemini 2.5 Flash |
 
 ## Permission & Safety
 
 | | Claude Code | Codex CLI | Gemini CLI |
 |---|---|---|---|
-| **Full auto** | `--dangerously-skip-permissions` | `--full-auto` + `--dangerously-bypass-approvals-and-sandbox` | `-y` |
-| **Read-only** | `--permission-mode plan` | `-s read-only` | — |
+| **Full auto** | `--dangerously-skip-permissions` | `--full-auto` + `--dangerously-bypass-approvals-and-sandbox` | `-y` / `--yolo` |
+| **Read-only** | `--permission-mode plan` | `-s read-only` | `--approval-mode plan` |
 | **Sandboxed writes** | — | `-s workspace-write` (default) | — |
 | **Tool whitelist** | `--allowedTools "tool1,tool2"` | — | — |
 | **Budget limit** | `--max-budget-usd 1.00` | — | — |
@@ -86,10 +86,10 @@ Side-by-side reference for Claude Code, Codex CLI, and Gemini CLI non-interactiv
 
 | | Claude Code | Codex CLI | Gemini CLI |
 |---|---|---|---|
-| **Format** | NDJSON (one JSON per line) | — | JSONL |
+| **Format** | NDJSON (one JSON per line) | JSONL (`--json`) | Stream JSON (`--output-format stream-json`) |
 | **Requires** | `--verbose` flag (critical!) | — | — |
-| **Partial messages** | `--include-partial-messages` | — | Built-in with JSONL |
-| **Event types** | `system`, `assistant`, `result` | — | Session metadata, message chunks, tool calls, stats |
+| **Partial messages** | `--include-partial-messages` | — | Built-in with stream-json |
+| **Event types** | `system`, `assistant`, `result` | `thread.started`, `turn.started`, `item.completed`, `turn.completed` | Session metadata, message chunks, tool calls, stats |
 
 ## System Prompts
 
@@ -109,11 +109,12 @@ Side-by-side reference for Claude Code, Codex CLI, and Gemini CLI non-interactiv
 
 ### Codex CLI
 - Full auto requires multiple flags: `--full-auto` + `--dangerously-bypass-approvals-and-sandbox` + trusted workspace
-- `--experimental-json` may change between versions
-- Session resume only works with `codex exec resume`, not inline
+- `--json` outputs JSONL with event types: `thread.started`, `turn.started`, `item.completed`, `turn.completed`
+- Session resume is a top-level subcommand: `codex resume --last`, not under `exec`
 
 ### Gemini CLI
 - A single prompt can trigger multiple API requests (affects quota)
 - Free tier is 1000 *model requests*/day, not 1000 *prompts*/day
-- `-y` auto-approves all changes — no granular permission control
+- `-y`/`--yolo` auto-approves all changes; for granular control use `--approval-mode` (`default`, `auto_edit`, `yolo`, `plan`)
+- Sessions supported with `-r`/`--resume`, `--list-sessions`, `--delete-session`
 - Monitor usage with `/stats model` in interactive mode

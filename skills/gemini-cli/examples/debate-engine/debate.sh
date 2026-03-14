@@ -23,8 +23,8 @@ set -euo pipefail
 TOPIC="${1:?Usage: ./debate.sh \"Your debate topic here\"}"
 MODEL_FAST="gemini-2-5-flash"
 MODEL_QUALITY="gemini-2-5-pro"
-OUTDIR="/tmp/debate-gemini-$(date +%s)"
-mkdir -p "$OUTDIR"
+OUTDIR=$(mktemp -d)
+trap 'rm -rf "$OUTDIR"' EXIT
 
 echo "=== Multi-Perspective Debate Engine (Gemini CLI) ==="
 echo "Topic: $TOPIC"
@@ -85,7 +85,10 @@ for role in "${ROLES[@]}"; do
   file="$OUTDIR/$role.txt"
   if [ -f "$file" ]; then
     content=$(cat "$file")
-    json=$(echo "$content" | grep -o '{.*}' | head -1 || echo "")
+    # Extract JSON: try direct parse, then fall back to extracting between { and }
+    json=$(jq -c '.' "$file" 2>/dev/null || \
+           sed -n '/^{/,/^}/p' "$file" | jq -c '.' 2>/dev/null || \
+           echo "")
 
     if [ -n "$json" ] && echo "$json" | jq '.' >/dev/null 2>&1; then
       echo "[$role] $(echo "$json" | jq -r '.position // "unknown"'): $(echo "$json" | jq -r '.argument // "No argument"')"

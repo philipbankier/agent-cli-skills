@@ -95,8 +95,8 @@ Every cross-platform skill should include a mapping of equivalent flags:
 |---------|------------|-----------|------------|
 | Non-interactive | `claude -p` | `codex exec` | `gemini -p` |
 | JSON output | `--output-format json` | `--json` | `--output-format json` |
-| Auto-approve | `--dangerously-skip-permissions` | `--full-auto --yolo` | `-y` |
-| No session | `--no-session-persistence` | `--ephemeral` | Default |
+| Auto-approve | `--dangerously-skip-permissions` | `--full-auto --dangerously-bypass-approvals-and-sandbox` | `-y` / `--yolo` |
+| No session | `--no-session-persistence` | `--ephemeral` | Default (use `-r`/`--resume` for sessions) |
 | Model select | `--model sonnet` | `--model o4-mini` | `-m gemini-2-5-flash` |
 
 ## Shared Patterns That Work Everywhere
@@ -132,13 +132,13 @@ When writing cross-platform skills, always call out these differences:
 
 ### Output Shape Differences
 - **Claude Code**: JSON response has `.result` for text and `.structured_output` for schema-validated data
-- **Codex CLI**: Output shape depends on `--json` vs `--experimental-json`
-- **Gemini CLI**: JSON response structure differs; JSONL for streaming
+- **Codex CLI**: `--json` outputs JSONL with event types: `thread.started`, `turn.started`, `item.completed`, `turn.completed`
+- **Gemini CLI**: JSON response structure includes `session_id`; use `--output-format stream-json` for streaming
 
 ### Session Behavior
 - **Claude Code**: Persists sessions by default — add `--no-session-persistence` for stateless
-- **Codex CLI**: Has built-in session resume with `codex exec resume --last`
-- **Gemini CLI**: Stateless by default in non-interactive mode
+- **Codex CLI**: Has built-in session resume with `codex resume --last` (top-level subcommand)
+- **Gemini CLI**: Stateless by default; sessions available with `-r`/`--resume` and `--list-sessions`
 
 ### Permission Models
 - **Claude Code**: Granular (tool whitelist, permission modes, budget limits)

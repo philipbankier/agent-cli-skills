@@ -1,0 +1,57 @@
+[
+  {
+    "role": "practitioner",
+    "position": "against",
+    "argument": "In real classrooms, AI works best as a support tool, not a full replacement for teachers. Students do better when someone can read the room, handle motivation, manage behavior, and adjust in the moment based on confusion, anxiety, or disengagement. AI can scale feedback and practice, but it does not reliably provide the trust, judgment, and accountability that make learning stick.",
+    "evidence": [
+      "Teachers constantly make non-verbal, situational decisions based on body language, attention, and classroom dynamics that current AI systems cannot reliably interpret or manage.",
+      "Student success depends heavily on relationships, encouragement, and consistent adult accountability, especially for younger learners and struggling students.",
+      "In practice, AI is effective for tutoring, drafting explanations, and personalized drills, but schools still need teachers for instruction quality control, safeguarding, discipline, and parent communication."
+    ],
+    "confidence": 0.96
+  },
+  {
+    "role": "skeptic",
+    "position": "against",
+    "argument": "AI should not replace teachers because education is not just content delivery; it depends on human judgment, trust, motivation, and safeguarding that machines cannot reliably provide. Replacing teachers with AI would increase risks of misinformation, bias, privacy harms, and unequal outcomes, especially for younger students and those who need individualized human support.",
+    "evidence": [
+      "Teachers do critical work beyond instruction, including detecting confusion, managing classrooms, mentoring students, and responding to emotional or safety concerns.",
+      "AI systems can produce confident but incorrect or biased answers, creating a direct risk when students rely on them without expert human oversight.",
+      "Evidence from many online-only learning environments shows that students often have lower engagement and weaker outcomes when strong human guidance is removed."
+    ],
+    "confidence": 0.94
+  },
+  {
+    "role": "historian",
+    "position": "against",
+    "argument": "History shows that major educational technologies, from printed textbooks to radio, film, and computers, changed how teachers worked but did not eliminate the need for human mentors. Schooling has always been a social institution as much as an information system, and when reformers treated learning as mere content delivery, results were weaker than promised.",
+    "evidence": [
+      "The printing press expanded access to knowledge, but teachers remained essential because literacy required guidance, interpretation, and discipline, not just books.",
+      "Twentieth-century predictions that radio, television, and film would revolutionize or replace classroom teaching largely failed; these tools supplemented instruction but could not sustain attention, motivation, or personal care on their own.",
+      "Past industrial and bureaucratic reforms in schooling improved scale and efficiency, yet systems that reduced teachers to interchangeable delivery mechanisms often produced alienation and poorer educational outcomes, showing the cost of removing human relationships from learning."
+    ],
+    "confidence": 0.93
+  },
+  {
+    "role": "futurist",
+    "position": "against",
+    "argument": "Over the next decade, AI will become a powerful co-teacher, tutor, and assessment engine, but it is unlikely to fully replace teachers because education depends on trust, motivation, social modeling, and human judgment. The most durable trajectory is hybrid schooling where AI personalizes instruction at scale while human teachers focus on mentorship, emotional support, group dynamics, and ethical development.",
+    "evidence": [
+      "AI is improving fastest at adaptive tutoring, content generation, and feedback, which complements classroom instruction rather than replacing the relational core of teaching.",
+      "Students learn through social interaction, accountability, and human role models, and those functions remain difficult for AI systems to replicate credibly across diverse age groups and contexts.",
+      "Schools are institutions for supervision, community formation, and child development as much as knowledge transfer, so policy and parent preferences will continue to favor human educators augmented by AI."
+    ],
+    "confidence": 0.87
+  },
+  {
+    "role": "optimist",
+    "position": "for",
+    "argument": "AI should replace traditional teacher roles because it can deliver truly personalized, always-available instruction at global scale. An AI teacher can adapt instantly to each student's pace, language, strengths, and gaps, making high-quality education more consistent, affordable, and accessible than human systems alone have ever achieved. This shift could unlock a future where every learner gets elite, data-driven support instead of one-size-fits-all classrooms.",
+    "evidence": [
+      "AI tutoring systems have already shown measurable learning gains in areas like math, reading, and language practice by giving immediate feedback and individualized exercises.",
+      "AI can operate 24/7 at very low marginal cost, which could expand access to quality education for rural, low-income, and underserved communities worldwide.",
+      "Adaptive learning platforms use real-time performance data to adjust difficulty, pacing, and explanations far faster than a single human teacher managing many students can."
+    ],
+    "confidence": 0.9
+  }
+]

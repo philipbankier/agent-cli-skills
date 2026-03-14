@@ -34,11 +34,9 @@ codex exec "Generate a project summary" > summary.txt
 ### JSON Output
 
 ```bash
-# Structured JSON for programmatic parsing
+# Structured JSONL for programmatic parsing
+# Events: thread.started, turn.started, item.completed, turn.completed
 codex exec "List all TODO comments in the codebase" --json | jq '.'
-
-# Experimental JSON with richer event stream
-codex exec "Analyze code quality" --experimental-json
 ```
 
 ### Output to File
@@ -79,7 +77,7 @@ codex exec "Refactor the database module" --full-auto
 ```bash
 # No approvals, no sandbox — only use in isolated/CI environments
 codex exec "Fix all failing tests and commit the fixes" \
-  --dangerously-bypass-approvals-and-sandbox
+  --full-auto --dangerously-bypass-approvals-and-sandbox
 ```
 
 ## Batch Processing

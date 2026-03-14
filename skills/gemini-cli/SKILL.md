@@ -5,6 +5,8 @@ description: Automate Google's Gemini CLI with non-interactive headless mode, ex
 
 # Gemini CLI Automation
 
+> **Community-contributed** — This skill was written by cross-referencing `gemini --help` (v0.33.0) and public documentation, but the examples have not been run end-to-end. Flag names and behavior may differ from what's documented here. If you find inaccuracies, please [open an issue](../../../../issues/new/choose) or submit a PR.
+
 ## Overview
 
 Gemini CLI ships with a **headless mode** (`gemini -p` or piped input) designed for non-interactive, programmatic use.
@@ -47,7 +49,7 @@ echo "Your prompt" | gemini
 
 ### "I want to call Gemini programmatically from scripts or CI/CD"
 -> Read [guides/automate-cli.md](guides/automate-cli.md)
-Key flags: `-p`, `--output-format`, `-y`, `-m`
+Key flags: `-p`, `--output-format`, `-y`/`--yolo`, `--approval-mode`, `-m`
 
 ### "I want to build or install Gemini extensions"
 -> Read [guides/extensions.md](guides/extensions.md)
@@ -61,9 +63,9 @@ Pattern: hierarchical config with `@import` syntax
 -> Read [reference/cli-flags.md](reference/cli-flags.md)
 Complete flag reference for non-interactive mode
 
-### "What does the JSON/JSONL output look like?"
+### "What does the JSON output look like?"
 -> Read [reference/json-output.md](reference/json-output.md)
-Output shapes for `--output-format json` and `--output-format jsonl`
+Output shapes for `--output-format json` and `--output-format stream-json`
 
 ### "Give me copy-paste code examples"
 -> Read [reference/code-snippets.md](reference/code-snippets.md)
@@ -84,8 +86,8 @@ gemini -p "Summarize this codebase"
 # Pipe content through Gemini
 cat main.py | gemini -p "List all function names in this file"
 
-# Auto-approve all actions
-gemini -p "Refactor auth.ts to use async/await" -y
+# Auto-approve all actions (yolo mode)
+gemini -p "Refactor auth.ts to use async/await" -y  # or --yolo
 
 # Use the fast model for quick tasks
 gemini -p "What language is this file?" -m gemini-2-5-flash < main.py
@@ -97,8 +99,8 @@ gemini -p "What language is this file?" -m gemini-2-5-flash < main.py
 # Structured JSON output
 gemini -p "Analyze this code for security issues" --output-format json | jq '.'
 
-# JSONL streaming output
-gemini -p "Explain this codebase step by step" --output-format jsonl
+# Streaming JSON output
+gemini -p "Explain this codebase step by step" --output-format stream-json
 ```
 
 ### Recipe 3: Free Tier Batch Processing
@@ -142,7 +144,7 @@ In headless mode:
 |---|---|---|---|
 | `text` | Default | Raw text string | Simple scripts, human-readable output |
 | `json` | `--output-format json` | Single JSON object with response + stats | Parsing metadata, structured workflows |
-| `jsonl` | `--output-format jsonl` | Streaming JSONL events | Real-time progress, session metadata |
+| `stream-json` | `--output-format stream-json` | Streaming JSON events | Real-time progress, session metadata |
 
 ### Model Selection
 
@@ -203,11 +205,11 @@ Manage in interactive mode:
 2. **Free tier model restrictions** — Unpaid API key access is limited to Flash models only.
    Use Google Account auth for access to the full Gemini family.
 
-3. **`-y` approves everything** — Unlike Claude Code's granular permission modes, Gemini's
-   `-y` flag is all-or-nothing. There's no "read-only" or "tool whitelist" equivalent.
+3. **`-y`/`--yolo` approves everything** — Gemini's `-y` flag (also `--yolo`) is all-or-nothing.
+   For more granular control, use `--approval-mode` with choices: `default`, `auto_edit`, `yolo`, `plan` (read-only).
 
-4. **No session persistence in headless mode** — Unlike Claude Code and Codex CLI, Gemini
-   doesn't persist sessions from headless invocations. Each `-p` call starts fresh.
+4. **Sessions are supported** — Use `-r`/`--resume` to continue a previous session, `--list-sessions`
+   to see available sessions, and `--delete-session` to clean up. Sessions work in headless mode too.
 
 5. **Exit codes are meaningful** — `0`=success, `1`=error, `42`=input error (bad prompt/args),
    `53`=turn limit exceeded. Check these in scripts.
@@ -230,5 +232,5 @@ Load these files only when the decision router points you to them:
 | `guides/extensions.md` | Gemini extensions system guide | Building or installing extensions |
 | `guides/gemini-md.md` | GEMINI.md configuration patterns | Configuring project or team-wide instructions |
 | `reference/cli-flags.md` | Complete flag reference for headless mode | Need exact flag syntax |
-| `reference/json-output.md` | JSON and JSONL output shapes | Parsing structured responses |
+| `reference/json-output.md` | JSON and stream-json output shapes | Parsing structured responses |
 | `reference/code-snippets.md` | Copy-paste code examples in Bash, Python, JS | Need a working starting point |

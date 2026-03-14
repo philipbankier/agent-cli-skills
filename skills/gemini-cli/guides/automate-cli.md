@@ -14,8 +14,11 @@ echo "Explain this code" | gemini
 # Piping file content
 cat main.py | gemini -p "List all function names in this file"
 
-# Auto-approve all actions
-gemini -p "Fix the linting errors in src/" -y
+# Auto-approve all actions (yolo mode)
+gemini -p "Fix the linting errors in src/" -y  # or --yolo
+
+# Granular approval modes: default, auto_edit, yolo, plan (read-only)
+gemini -p "Read the codebase and explain the architecture" --approval-mode plan
 ```
 
 ## Model Selection
@@ -57,14 +60,14 @@ gemini -p "List all TODO comments" --output-format json | jq '.'
 gemini -p "Explain this code" --output-format json | jq -r '.response'
 ```
 
-### JSONL Streaming
+### Streaming JSON
 
 ```bash
-# Streaming JSONL events
-gemini -p "Explain this step by step" --output-format jsonl
+# Streaming JSON events
+gemini -p "Explain this step by step" --output-format stream-json
 
 # Parse streaming events
-gemini -p "Analyze the architecture" --output-format jsonl | \
+gemini -p "Analyze the architecture" --output-format stream-json | \
   while IFS= read -r line; do
     type=$(echo "$line" | jq -r '.type // empty')
     [ -n "$type" ] && echo "Event: $type"

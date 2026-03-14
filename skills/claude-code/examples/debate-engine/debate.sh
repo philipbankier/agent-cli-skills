@@ -79,7 +79,7 @@ SYNTHESIS_SCHEMA='{"type":"object","properties":{"topic":{"type":"string"},"cons
 # --- Temp Directory ----------------------------------------------------------
 
 TMPDIR=$(mktemp -d)
-trap "rm -rf $TMPDIR" EXIT
+trap 'rm -rf "$TMPDIR"' EXIT
 
 # --- Launch 5 Parallel Perspective Agents ------------------------------------
 

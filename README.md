@@ -9,6 +9,20 @@
 
 Teach Claude Code, Codex CLI, and Gemini CLI to automate themselves — non-interactive scripting, structured output, multi-agent orchestration, CI/CD integration, and skill authoring.
 
+### Verified Against
+
+Flags, JSON output shapes, and examples have been tested against these versions:
+
+| CLI | Version | Status |
+|-----|---------|--------|
+| Claude Code | v2.1.76 | Fully tested — flags verified, examples run with captured output |
+| Codex CLI | v0.114.0 | Fully tested — flags verified, examples run with captured output |
+| Gemini CLI | v0.33.0 | Community-contributed — flags checked against `--help`, examples not yet run |
+
+> **Gemini CLI contributors welcome!** The Gemini skill was written by cross-referencing `gemini --help` output, but the examples have not been run end-to-end. If you have Gemini CLI configured, please run the examples and submit a PR with corrections and sample output.
+
+CLI interfaces change between versions. If you find a discrepancy, [open an issue](../../issues/new/choose) with your CLI version.
+
 ## Why This Exists
 
 AI CLI agents ship with powerful non-interactive modes, but they're underdocumented. Flags have non-obvious interactions (`stream-json` silently fails without `--verbose` in Claude Code), output formats differ between tools, and there's no single resource that covers all three. Each skill in this repo packages the tested patterns, gotchas, and production-ready recipes so your agent — or you — gets it right the first time.
@@ -54,7 +68,7 @@ curl -fsSL https://raw.githubusercontent.com/philipbankier/agent-cli-skills/main
 |---------|-------------|-----------|------------|
 | Non-interactive flag | `claude -p "prompt"` | `codex exec "prompt"` | `gemini -p "prompt"` |
 | JSON output | `--output-format json` | `--json` | `--output-format json` |
-| Auto-approve | `--dangerously-skip-permissions` | `--full-auto` / `--yolo` | `-y` |
+| Auto-approve | `--dangerously-skip-permissions` | `--full-auto` + `--dangerously-bypass-approvals-and-sandbox` | `-y` / `--yolo` |
 | Config file | `CLAUDE.md` | `AGENTS.md` | `GEMINI.md` |
 | Skill directory | `.claude/skills/` | `.agents/skills/` | `.gemini/skills/` |
 | Install | `npm i -g @anthropic-ai/claude-code` | `npm i -g @openai/codex` | `npm i -g @google/gemini-cli` |

@@ -21,7 +21,7 @@ echo "Your prompt" | codex exec -             # pipe from stdin
 ```
 
 **Key differentiators from other CLI agents:**
-- **Session resume** — `codex exec resume --last` continues where you left off across invocations
+- **Session resume** — `codex resume --last` continues where you left off across invocations
 - **Output to file** — `-o output.txt` writes the final assistant message to a file
 - **AGENTS.md** — Configuration file shared with Copilot and Cursor (write once, use everywhere)
 - **Sandbox modes** — Granular control: read-only, workspace-write, or full-access
@@ -52,7 +52,7 @@ Key commands: `codex exec`, `--full-auto`, `--json`, `-o`
 
 ### "I want to build multi-step workflows that maintain context across invocations"
 -> Read [guides/session-management.md](guides/session-management.md)
-Key commands: `codex exec resume --last`, `--ephemeral`, `-o`
+Key commands: `codex resume --last`, `--ephemeral`, `-o`
 
 ### "I want to configure AGENTS.md for my project (works with Copilot and Cursor too)"
 -> Read [guides/agents-md.md](guides/agents-md.md)
@@ -64,7 +64,7 @@ Complete flag reference for non-interactive mode
 
 ### "What does the JSON output look like?"
 -> Read [reference/json-output.md](reference/json-output.md)
-Output shapes for `--json` and `--experimental-json`
+Output shapes for `--json` (JSONL event stream)
 
 ### "Give me copy-paste code examples"
 -> Read [reference/code-snippets.md](reference/code-snippets.md)
@@ -96,11 +96,8 @@ codex exec "Fix all lint errors" \
 ### Recipe 2: JSON Output for Scripting
 
 ```bash
-# Get structured JSON output
+# Get structured JSONL output (event types: thread.started, turn.started, item.completed, turn.completed)
 codex exec "Analyze this code for security issues" --json
-
-# Experimental JSON with richer event data
-codex exec "Review this PR diff" --experimental-json
 
 # Save final message to file for downstream processing
 codex exec "Generate a changelog from recent commits" -o changelog.md
@@ -113,10 +110,10 @@ codex exec "Generate a changelog from recent commits" -o changelog.md
 codex exec "Analyze the authentication module and identify improvement areas"
 
 # Step 2: Resume and implement changes
-codex exec resume --last "Now implement the top 3 improvements you identified"
+codex resume --last "Now implement the top 3 improvements you identified"
 
 # Step 3: Resume and write tests
-codex exec resume --last "Write tests for the changes you just made"
+codex resume --last "Write tests for the changes you just made"
 ```
 
 ### Recipe 4: CI/CD Integration
@@ -166,9 +163,9 @@ Combined with sandbox, these control autonomy:
 
 - **Default** — Prompts for approval on writes and executions
 - **`--full-auto`** — Applies automation presets (workspace-write sandbox, on-request approvals)
-- **`--dangerously-bypass-approvals-and-sandbox`** / `--yolo` — No approvals, no sandbox. Only use in isolated environments.
+- **`--dangerously-bypass-approvals-and-sandbox`** — No approvals, no sandbox. Only use in isolated environments.
 
-For true full autonomy in v0.20+, you need: `full-auto = true` + `bypass-approvals = true` + `bypass-sandbox = true` + `trusted-workspace = true`.
+For true full autonomy, you need: `full-auto = true` + `bypass-approvals = true` + `bypass-sandbox = true` + `trusted-workspace = true`.
 
 ### AGENTS.md Configuration
 
@@ -185,8 +182,8 @@ Files concatenate from root downward. This is shared with Copilot and Cursor —
 Codex persists sessions to disk by default. Resume them with:
 
 ```bash
-codex exec resume --last          # Continue the most recent session
-codex exec resume --all           # List all sessions, pick one
+codex resume --last          # Continue the most recent session
+codex resume --all           # List all sessions, pick one
 ```
 
 Use `--ephemeral` when you want stateless, fire-and-forget invocations.
@@ -195,14 +192,11 @@ Use `--ephemeral` when you want stateless, fire-and-forget invocations.
 
 ## Critical Gotchas
 
-1. **Full auto requires multiple conditions** — In v0.20+, `--full-auto` alone isn't enough for
+1. **Full auto requires multiple conditions** — `--full-auto` alone isn't enough for
    complete autonomy. You also need `--dangerously-bypass-approvals-and-sandbox` and a trusted
    workspace. Without all conditions met, you'll still get approval prompts.
 
-2. **`--experimental-json` is unstable** — The flag name and output shape may change between
-   versions. Pin your Codex CLI version in CI/CD if you depend on this.
-
-3. **`-o` writes the final message only** — The `-o` / `--output-last-message` flag captures
+2. **`-o` writes the final message only** — The `-o` / `--output-last-message` flag captures
    only the assistant's last message, not the full conversation. For complete output, use
    `--json` and capture stdout.
 
@@ -212,7 +206,7 @@ Use `--ephemeral` when you want stateless, fire-and-forget invocations.
 5. **AGENTS.md has a size limit** — Combined instructions cap at `project_doc_max_bytes`
    (32 KiB default). If your AGENTS.md chain exceeds this, later files silently get truncated.
 
-6. **Session resume is directory-scoped** — `codex exec resume --last` finds the most recent
+6. **Session resume is directory-scoped** — `codex resume --last` finds the most recent
    session in the current directory. Changing directories changes which session is "last".
 
 7. **API key auth is separate from ChatGPT auth** — API key billing goes to your OpenAI Platform
@@ -230,5 +224,5 @@ Load these files only when the decision router points you to them:
 | `guides/session-management.md` | Session resume, multi-step workflows, output capture | Building multi-turn automated workflows |
 | `guides/agents-md.md` | AGENTS.md configuration patterns and hierarchy | Configuring project or team-wide instructions |
 | `reference/exec-mode-flags.md` | Complete flag reference for codex exec | Need exact flag syntax or interactions |
-| `reference/json-output.md` | JSON and experimental-JSON output shapes | Parsing structured responses |
+| `reference/json-output.md` | JSONL output shapes for `--json` | Parsing structured responses |
 | `reference/code-snippets.md` | Copy-paste code examples in Bash, Python, JS | Need a working starting point |

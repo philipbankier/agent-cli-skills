@@ -1,40 +1,40 @@
 # Codex CLI JSON Output
 
-Output shapes for `--json` and `--experimental-json` flags.
+Output shapes for the `--json` flag.
 
 ## --json Flag
 
-The `--json` flag produces newline-delimited JSON events on stdout. Each line is a self-contained JSON object.
+The `--json` flag produces JSONL (newline-delimited JSON) events on stdout. Each line is a self-contained JSON object with a `type` field.
 
 ### Event Types
 
-Events include session metadata, message chunks, tool calls, and results. The exact shape depends on the Codex CLI version.
+The `--json` flag emits four event types in order:
+
+1. **`thread.started`** — Emitted when the session begins
+2. **`turn.started`** — Emitted when a new turn begins
+3. **`item.completed`** — Emitted for each completed item (message, tool call, etc.)
+4. **`turn.completed`** — Emitted when the turn finishes
+
+### Event Shapes
+
+```jsonl
+{"type": "thread.started", "thread_id": "..."}
+{"type": "turn.started", "turn_id": "..."}
+{"type": "item.completed", "item": {"type": "message", "content": [{"type": "text", "text": "..."}]}}
+{"type": "item.completed", "item": {"type": "tool_call", "name": "...", "arguments": "..."}}
+{"type": "turn.completed", "turn_id": "..."}
+```
 
 ### Basic Usage
 
 ```bash
-# Capture JSON output
+# Capture JSONL output
 codex exec "Analyze this code" --json > output.jsonl
 
-# Parse with jq
-codex exec "List TODO items" --json | jq 'select(.type == "message")'
+# Extract message text with jq
+codex exec "List TODO items" --json | \
+  jq -r 'select(.type == "item.completed") | .item | select(.type == "message") | .content[].text'
 ```
-
-## --experimental-json Flag
-
-Richer event stream with more granular data. **This flag is unstable** — the output format may change between versions.
-
-### Usage
-
-```bash
-codex exec "Review code quality" --experimental-json > events.jsonl
-```
-
-### Caveats
-
-- Output shape is not guaranteed stable across versions
-- Pin your Codex CLI version if you parse this in production
-- May include internal events not present in `--json`
 
 ## Output to File (-o)
 
@@ -68,10 +68,10 @@ cat /tmp/result.txt
 
 # Using --json + jq (more control)
 codex exec "What is 2+2?" --json --ephemeral | \
-  jq -r 'select(.type == "message") | .content' | tail -1
+  jq -r 'select(.type == "item.completed") | .item | select(.type == "message") | .content[].text'
 ```
 
-### Process JSON Events (Python)
+### Process JSONL Events (Python)
 
 ```python
 import subprocess
@@ -86,9 +86,14 @@ for line in proc.stdout.strip().split('\n'):
     if line:
         event = json.loads(line)
         print(f"Event type: {event.get('type')}")
+        if event.get('type') == 'item.completed':
+            item = event.get('item', {})
+            if item.get('type') == 'message':
+                for content in item.get('content', []):
+                    print(f"  Text: {content.get('text', '')}")
 ```
 
-### Process JSON Events (Node.js)
+### Process JSONL Events (Node.js)
 
 ```javascript
 const { execFileSync } = require('child_process');
@@ -103,5 +108,9 @@ const events = output.trim().split('\n')
   .filter(Boolean)
   .map(line => JSON.parse(line));
 
-console.log(`Got ${events.length} events`);
+const messages = events
+  .filter(e => e.type === 'item.completed' && e.item?.type === 'message')
+  .flatMap(e => e.item.content.map(c => c.text));
+
+console.log(`Got ${events.length} events, ${messages.length} messages`);
 ```

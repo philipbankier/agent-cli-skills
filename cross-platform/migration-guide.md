@@ -39,9 +39,9 @@ git diff main...HEAD | gemini -p \
 | Run non-interactively | `claude -p "prompt"` | `codex exec "prompt"` | `gemini -p "prompt"` |
 | Pipe from stdin | `echo "x" \| claude -p` | `echo "x" \| codex exec -` | `echo "x" \| gemini` |
 | JSON output | `--output-format json` | `--json` | `--output-format json` |
-| Streaming | `--output-format stream-json --verbose` | — | `--output-format jsonl` |
-| Auto-approve all | `--dangerously-skip-permissions` | `--full-auto --yolo` | `-y` |
-| Stateless | `--no-session-persistence` | `--ephemeral` | Default behavior |
+| Streaming | `--output-format stream-json --verbose` | `--json` (JSONL events) | `--output-format stream-json` |
+| Auto-approve all | `--dangerously-skip-permissions` | `--full-auto --dangerously-bypass-approvals-and-sandbox` | `-y` / `--yolo` |
+| Stateless | `--no-session-persistence` | `--ephemeral` | Default (sessions available with `-r`/`--resume`) |
 | Model select | `--model sonnet` | `--model o4-mini` | `-m gemini-2-5-flash` |
 | System prompt | `--append-system-prompt "..."` | Via AGENTS.md | Via GEMINI.md |
 | Budget limit | `--max-budget-usd 1.00` | — | — |
@@ -65,16 +65,20 @@ The JSON response structure differs across CLIs:
 - Includes cost tracking
 
 ### Codex CLI
-```json
-{"type": "message", "content": "The response text"}
+```jsonl
+{"type": "thread.started", "thread_id": "..."}
+{"type": "turn.started", "turn_id": "..."}
+{"type": "item.completed", "item": {"type": "message", "content": [{"type": "text", "text": "The response text"}]}}
+{"type": "turn.completed", "turn_id": "..."}
 ```
-- NDJSON (one event per line)
-- Filter for `type == "message"` to get the response
+- JSONL (one event per line) with `--json` flag
+- Filter for `type == "item.completed"` and `item.type == "message"` to get the response
 - Or use `-o file.txt` for clean output
 
 ### Gemini CLI
 ```json
 {
+  "session_id": "abc123",
   "response": "The response text",
   "statistics": {"model_requests": 1, "input_tokens": 100, "output_tokens": 50},
   "error": null
@@ -162,15 +166,15 @@ The structure is identical — only the install command, env var, and CLI invoca
 - Remove `--verbose` (not needed for Codex JSON)
 
 ### Claude Code → Gemini CLI
-- Replace `--no-session-persistence` — Gemini is stateless by default in headless mode
+- Replace `--no-session-persistence` — Gemini is stateless by default in headless mode (use `-r`/`--resume` for sessions)
 - Replace `--output-format json | jq '.result'` with `--output-format json | jq '.response'`
 - Add rate limiting (`sleep 1`) for batch loops on free tier
-- Replace `--dangerously-skip-permissions` with `-y`
+- Replace `--dangerously-skip-permissions` with `-y` (or `--yolo`)
 
 ### Codex CLI → Gemini CLI
 - Replace `codex exec` with `gemini -p`
-- Replace `--json` with `--output-format json`
-- Replace `--ephemeral` — not needed (Gemini is stateless)
+- Replace `--json` with `--output-format json` (or `--output-format stream-json` for streaming)
+- Replace `--ephemeral` — not needed (Gemini is stateless by default)
 - Replace `-o file.txt` with `> file.txt` (redirect)
 - Add `-m gemini-2-5-flash` for speed-optimized tasks
 

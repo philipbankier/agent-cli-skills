@@ -18,8 +18,8 @@ set -euo pipefail
 # ============================================================================
 
 TOPIC="${1:?Usage: ./debate.sh \"Your debate topic here\"}"
-OUTDIR="/tmp/debate-codex-$(date +%s)"
-mkdir -p "$OUTDIR"
+OUTDIR=$(mktemp -d)
+trap 'rm -rf "$OUTDIR"' EXIT
 
 echo "=== Multi-Perspective Debate Engine (Codex CLI) ==="
 echo "Topic: $TOPIC"
@@ -76,9 +76,13 @@ FIRST=true
 for role in "${!PERSPECTIVES[@]}"; do
   file="$OUTDIR/$role.txt"
   if [ -f "$file" ]; then
-    # Try to extract JSON from the response
+    # Extract JSON from the response. codex -o writes the last message text,
+    # which may be clean JSON or wrapped in markdown fences / extra text.
+    # Strategy: try jq directly, then fall back to extracting between { and }.
     content=$(cat "$file")
-    json=$(echo "$content" | grep -o '{.*}' | head -1 || echo "")
+    json=$(jq -c '.' "$file" 2>/dev/null || \
+           sed -n '/^{/,/^}/p' "$file" | jq -c '.' 2>/dev/null || \
+           echo "")
 
     if [ -n "$json" ] && echo "$json" | jq '.' >/dev/null 2>&1; then
       echo "[$role] $(echo "$json" | jq -r '.position // "unknown"'): $(echo "$json" | jq -r '.argument // "No argument"')"

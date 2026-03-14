@@ -44,14 +44,11 @@ claude -p "Extract function names from this code" \
 ### Codex CLI
 
 ```bash
-# JSON event stream
+# JSONL event stream (events: thread.started, turn.started, item.completed, turn.completed)
 codex exec "List all functions" --json --ephemeral
 
 # Or save clean output to file
 codex exec "List all functions" --ephemeral -o functions.txt
-
-# Experimental JSON (richer but unstable)
-codex exec "List all functions" --experimental-json --ephemeral
 ```
 
 ### Gemini CLI
@@ -62,6 +59,7 @@ gemini -p "List all functions" --output-format json < main.py
 
 # Response shape:
 # {
+#   "session_id": "abc123",
 #   "response": "Here are the functions...",
 #   "statistics": {"model_requests": 1, "input_tokens": 100, "output_tokens": 50},
 #   "error": null

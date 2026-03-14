@@ -7,9 +7,13 @@ Complete reference for Gemini CLI non-interactive (headless) mode flags.
 | Flag | Short | Description | Default |
 |------|-------|-------------|---------|
 | `-p <prompt>` | `--prompt` | Run in headless mode with the given prompt | — |
-| `-y` | `--yes` | Auto-approve all actions without prompting | Off |
+| `-y` | `--yolo` | Auto-approve all actions without prompting (yolo mode) | Off |
+| `--approval-mode <mode>` | — | Approval mode: `default`, `auto_edit`, `yolo`, `plan` (read-only) | `default` |
+| `-r` | `--resume` | Resume a previous session | — |
+| `--list-sessions` | — | List all available sessions | — |
+| `--delete-session` | — | Delete a session | — |
 | `-m <model>` | `--model` | Select the model to use | gemini-2-5-pro |
-| `--output-format <fmt>` | — | Output format: `text`, `json`, `jsonl` | `text` |
+| `--output-format <fmt>` | `-o` | Output format: `text`, `json`, `stream-json` | `text` |
 | `-f` | `--free` | Key-free mode (Google account auth) | — |
 
 ## Model Selection
@@ -27,13 +31,14 @@ Complete reference for Gemini CLI non-interactive (headless) mode flags.
 | Format | Flag | Description |
 |--------|------|-------------|
 | Text | Default (or `--output-format text`) | Plain text response |
-| JSON | `--output-format json` | Single JSON object with response, statistics, errors |
-| JSONL | `--output-format jsonl` | Streaming newline-delimited JSON events |
+| JSON | `--output-format json` | Single JSON object with response and metadata |
+| Stream JSON | `--output-format stream-json` | Streaming JSON events |
 
 ### JSON Response Shape
 
 ```json
 {
+  "session_id": "abc123",
   "response": "The main text response",
   "statistics": {
     "model_requests": 3,
@@ -44,10 +49,10 @@ Complete reference for Gemini CLI non-interactive (headless) mode flags.
 }
 ```
 
-### JSONL Event Types
+### Stream JSON Event Types
 
-Each line is a self-contained JSON object. Event types include:
-- Session metadata
+Each event is a JSON object streamed in real time. Events include:
+- Session metadata (with `session_id`)
 - Message content chunks
 - Tool calls and results
 - Aggregated statistics
@@ -85,7 +90,9 @@ Each line is a self-contained JSON object. Event types include:
 |-------------|----------|
 | `-p` + piped stdin | Prompt from flag, additional context from stdin |
 | `-y` + `-m gemini-2-5-flash` | Fast, fully autonomous (good for batch) |
-| `--output-format jsonl` + `-p` | Streaming events in headless mode |
+| `--output-format stream-json` + `-p` | Streaming events in headless mode |
+| `--approval-mode plan` + `-p` | Read-only mode in headless |
+| `-r` + `-p` | Resume a previous session with a new prompt |
 | `-m` + no value | Error — model flag requires a value |
 
 ## Rate Limits by Auth Method

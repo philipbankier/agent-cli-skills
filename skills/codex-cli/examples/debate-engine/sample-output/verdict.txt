@@ -1,0 +1,12 @@
+**Verdict**
+
+AI should not fully replace teachers, but it should substantially reshape teaching. The pro-replacement case is strongest on scale, personalization, cost, and 24/7 access: AI can already deliver fast feedback and adaptive practice more consistently than many one-teacher-to-many-students settings. Still, the opposing case is more convincing overall because education is not only information transfer; it also depends on trust, motivation, classroom judgment, safeguarding, and social development. Across the practitioner, skeptic, historian, and futurist views, the evidence converges on the same point: technology repeatedly improves instruction, but human educators remain necessary where relationships, accountability, and real-world judgment matter most. The balanced conclusion is that AI is best understood as a powerful co-teacher, not a full replacement.
+
+**Strongest Argument From Each Side**
+
+- `For`: AI can provide highly personalized, always-available instruction at scale, which could make quality education more accessible, affordable, and responsive to individual student needs than traditional classrooms alone.
+- `Against`: Teachers do essential human work that AI cannot reliably replicate, including reading social and emotional cues, building trust, maintaining accountability, managing behavior, and protecting student wellbeing.
+
+**Recommended Course of Action**
+
+Use AI to augment, not replace, teachers. Shift AI into roles like tutoring, feedback, practice, translation, and assessment support, while keeping human teachers responsible for mentorship, classroom leadership, safeguarding, and final instructional judgment. This hybrid model captures AI's efficiency and personalization without sacrificing the human relationships and oversight that strong learning outcomes depend on.

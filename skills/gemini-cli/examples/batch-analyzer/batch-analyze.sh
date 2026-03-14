@@ -28,8 +28,8 @@ MODEL="${MODEL:-gemini-2-5-flash}"
 MAX_PARALLEL="${MAX_PARALLEL:-5}"
 RATE_PAUSE="${RATE_PAUSE:-1}"
 
-OUTDIR="/tmp/gemini-batch-$(date +%s)"
-mkdir -p "$OUTDIR"
+OUTDIR=$(mktemp -d)
+trap 'rm -rf "$OUTDIR"' EXIT
 
 echo "=== Gemini Free-Tier Batch Analyzer ==="
 echo "Directory: $DIR"
