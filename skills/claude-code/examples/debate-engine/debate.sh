@@ -6,9 +6,14 @@
 # then a moderator synthesizes the debate into a balanced analysis.
 #
 # Usage:
-#   ./debate.sh "Should AI replace teachers?"           # structured JSON output
-#   ./debate.sh --stream "Should AI replace teachers?"   # streaming moderator
-#   ./debate.sh --model haiku "Quick topic"              # use a specific model
+#   ./debate.sh "Should AI replace teachers?"                          # structured JSON
+#   ./debate.sh --stream "Should AI replace teachers?"                  # streaming
+#   ./debate.sh --model haiku "Quick topic"                             # specific model
+#   ./debate.sh --output-dir ./sample-output "Should AI replace teachers?"  # save output
+#
+# IMPORTANT: Run from a standalone terminal, NOT from within a Claude Code
+# session. Nested claude -p calls produce empty output when invoked as
+# subprocesses of an active Claude Code instance.
 # ============================================================================
 set -euo pipefail
 
@@ -22,6 +27,7 @@ unset CLAUDECODE 2>/dev/null || true
 STREAM=false
 MODEL="sonnet"
 TOPIC=""
+OUTPUT_DIR=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -33,6 +39,10 @@ while [[ $# -gt 0 ]]; do
       MODEL="$2"
       shift 2
       ;;
+    --output-dir)
+      OUTPUT_DIR="$2"
+      shift 2
+      ;;
     *)
       TOPIC="$1"
       shift
@@ -41,14 +51,16 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$TOPIC" ]]; then
-  echo "Usage: ./debate.sh [--stream] [--model MODEL] \"TOPIC\""
+  echo "Usage: ./debate.sh [--stream] [--model MODEL] [--output-dir DIR] \"TOPIC\""
   echo ""
   echo "Options:"
-  echo "  --stream    Stream the moderator's synthesis in real time"
-  echo "  --model     Model to use (default: sonnet)"
+  echo "  --stream      Stream the moderator's synthesis in real time"
+  echo "  --model       Model to use (default: sonnet)"
+  echo "  --output-dir  Save results to this directory (skips temp cleanup)"
   echo ""
   echo "Example:"
   echo "  ./debate.sh \"Should AI replace teachers?\""
+  echo "  ./debate.sh --output-dir ./sample-output \"Should AI replace teachers?\""
   exit 1
 fi
 
@@ -76,10 +88,15 @@ PERSPECTIVE_SCHEMA='{"type":"object","properties":{"perspective":{"type":"string
 
 SYNTHESIS_SCHEMA='{"type":"object","properties":{"topic":{"type":"string"},"consensus_points":{"type":"array","items":{"type":"string"},"description":"Points most perspectives agree on"},"key_disagreements":{"type":"array","items":{"type":"string"},"description":"Main points of contention"},"synthesis":{"type":"string","description":"Balanced 2-3 paragraph analysis"},"verdict":{"type":"string","description":"Nuanced one-paragraph conclusion"}},"required":["topic","consensus_points","key_disagreements","synthesis","verdict"]}'
 
-# --- Temp Directory ----------------------------------------------------------
+# --- Working Directory -------------------------------------------------------
 
-TMPDIR=$(mktemp -d)
-trap 'rm -rf "$TMPDIR"' EXIT
+if [[ -n "$OUTPUT_DIR" ]]; then
+  mkdir -p "$OUTPUT_DIR"
+  TMPDIR="$OUTPUT_DIR"
+else
+  TMPDIR=$(mktemp -d)
+  trap 'rm -rf "$TMPDIR"' EXIT
+fi
 
 # --- Launch 5 Parallel Perspective Agents ------------------------------------
 
@@ -140,6 +157,14 @@ if [[ $ERRORS -eq 5 ]]; then
   exit 1
 fi
 
+# Save extracted perspective JSONs when using --output-dir
+if [[ -n "$OUTPUT_DIR" ]]; then
+  for f in "$TMPDIR"/*.json; do
+    NAME=$(basename "$f" .json)
+    jq '.structured_output' "$f" > "$TMPDIR/${NAME}-perspective.json" 2>/dev/null || true
+  done
+fi
+
 # --- Build Moderator Prompt (written to file to avoid arg length limits) -----
 
 MODERATOR_FILE="$TMPDIR/moderator-prompt.txt"
@@ -182,13 +207,19 @@ else
   echo "  MODERATOR'S SYNTHESIS"
   echo "======================================="
   echo ""
-  cat "$MODERATOR_FILE" | claude -p \
+  MODERATOR_RAW=$(cat "$MODERATOR_FILE" | claude -p \
     --append-system-prompt "You are a balanced, thoughtful moderator. Synthesize all perspectives fairly." \
     --output-format json \
     --json-schema "$SYNTHESIS_SCHEMA" \
     --model "$MODEL" \
     --no-session-persistence \
-    --tools "" | jq '.structured_output'
+    --tools "")
+  echo "$MODERATOR_RAW" | jq '.structured_output'
+
+  # Save synthesis when using --output-dir
+  if [[ -n "$OUTPUT_DIR" ]]; then
+    echo "$MODERATOR_RAW" | jq '.structured_output' > "$TMPDIR/synthesis.json"
+  fi
 fi
 
 # --- Cost Summary ------------------------------------------------------------

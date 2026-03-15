@@ -1,0 +1,11 @@
+{
+  "role": "historian",
+  "position": "against",
+  "argument": "Past technological transitions in education, from printed textbooks to radio, television, and computers, repeatedly promised to replace teachers but instead worked best when they amplified human instruction. Teaching is not only information delivery; history shows it is also mentorship, socialization, moral formation, and adaptation to local context, roles machines have consistently failed to fully assume.",
+  "evidence": [
+    "The spread of mass print did not eliminate teachers; it increased the value of instructors who could interpret texts, guide discussion, and teach critical judgment.",
+    "Twentieth-century educational radio and television were promoted as scalable substitutes for classrooms, yet they proved most effective as supplements because students still needed human feedback, discipline, and encouragement.",
+    "The computer and internet revolutions expanded access to knowledge, but schools did not become teacherless; instead, the flood of information made trusted adults more important for curation, motivation, and social development."
+  ],
+  "confidence": 0.94
+}

@@ -10,6 +10,7 @@ set -euo pipefail
 # Usage:
 #   ./debate.sh "Should AI replace teachers?"
 #   ./debate.sh "Is remote work better than office work?"
+#   ./debate.sh --output-dir ./sample-output "Should AI replace teachers?"
 #
 # Requirements:
 #   - Gemini CLI: npm install -g @google/gemini-cli
@@ -20,11 +21,37 @@ set -euo pipefail
 # the moderator (quality). Each debater uses 1 request from your daily quota.
 # ============================================================================
 
-TOPIC="${1:?Usage: ./debate.sh \"Your debate topic here\"}"
+OUTPUT_DIR=""
+TOPIC=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --output-dir)
+      OUTPUT_DIR="$2"
+      shift 2
+      ;;
+    *)
+      TOPIC="$1"
+      shift
+      ;;
+  esac
+done
+
+if [[ -z "$TOPIC" ]]; then
+  echo "Usage: ./debate.sh [--output-dir DIR] \"Your debate topic here\""
+  exit 1
+fi
+
 MODEL_FAST="gemini-2-5-flash"
 MODEL_QUALITY="gemini-2-5-pro"
-OUTDIR=$(mktemp -d)
-trap 'rm -rf "$OUTDIR"' EXIT
+
+if [[ -n "$OUTPUT_DIR" ]]; then
+  mkdir -p "$OUTPUT_DIR"
+  OUTDIR="$OUTPUT_DIR"
+else
+  OUTDIR=$(mktemp -d)
+  trap 'rm -rf "$OUTDIR"' EXIT
+fi
 
 echo "=== Multi-Perspective Debate Engine (Gemini CLI) ==="
 echo "Topic: $TOPIC"

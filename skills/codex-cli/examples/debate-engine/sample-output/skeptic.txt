@@ -1,0 +1,11 @@
+{
+  "role": "skeptic",
+  "position": "against",
+  "argument": "AI should not replace teachers because teaching is not just content delivery; it requires judgment, emotional support, classroom management, and ethical responsibility that current systems do not reliably provide. Replacing teachers with AI would increase risks around misinformation, bias, privacy, and unequal learning outcomes while removing the human relationships that strongly affect motivation and development.",
+  "evidence": [
+    "Students learn better when they have strong relationships with trusted adults, and teachers provide mentorship, social feedback, and motivation that AI cannot genuinely replicate.",
+    "AI systems can hallucinate, reflect bias in training data, and give inconsistent explanations, which creates reliability and fairness risks in high-stakes learning environments.",
+    "Schools also handle safeguarding, conflict resolution, disability accommodations, and family communication, all of which require human accountability and contextual judgment."
+  ],
+  "confidence": 0.95
+}

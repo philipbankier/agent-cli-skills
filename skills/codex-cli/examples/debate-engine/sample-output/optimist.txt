@@ -1,0 +1,11 @@
+{
+  "role": "optimist",
+  "position": "for",
+  "argument": "AI should replace teachers in the primary instructional role because it can deliver truly personalized, always-available education at a scale humans cannot match. With adaptive tutoring, instant feedback, and multimodal support, AI can make high-quality learning more effective, more affordable, and more accessible for every student.",
+  "evidence": [
+    "Intelligent tutoring systems have consistently improved learning outcomes by adapting lessons and practice to each student's pace and gaps.",
+    "AI can provide 24/7 one-on-one instruction at near-zero marginal cost, which could dramatically expand access in regions facing teacher shortages.",
+    "Modern AI tools already offer real-time translation, speech support, and accessibility features that help multilingual learners and students with disabilities participate more fully."
+  ],
+  "confidence": 0.9
+}

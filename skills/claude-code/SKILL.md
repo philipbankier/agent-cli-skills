@@ -271,6 +271,11 @@ Things that will bite you if you do not know about them:
    structured data appears in `.structured_output` in the JSON response. The `.result` field
    still contains the free-text response. Check both fields.
 
+9. **Nested `claude -p` calls produce empty output** — Running `claude -p` as a subprocess
+   from within an active Claude Code session produces empty output, even with
+   `unset CLAUDECODE`. Scripts that spawn `claude -p` (like the debate engine) must be run
+   from a standalone terminal, not from within Claude Code.
+
 ---
 
 ## File Map

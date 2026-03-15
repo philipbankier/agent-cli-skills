@@ -1,0 +1,11 @@
+{
+  "role": "futurist",
+  "position": "against",
+  "argument": "Over the next decade, AI will become a powerful co-teacher that personalizes lessons, assessments, and tutoring at massive scale, but it should not replace human teachers. Education is not only information transfer; it depends on trust, social modeling, motivation, ethical judgment, and real-time emotional support that AI will improve at simulating but remain structurally weak at owning.",
+  "evidence": [
+    "Current AI systems already outperform traditional software at adaptive tutoring and instant feedback, suggesting they will take over routine instructional tasks rather than the full human role.",
+    "Developmental research consistently shows that student outcomes depend heavily on relationships, belonging, and teacher expectations, which are social factors not reducible to content delivery.",
+    "As AI becomes cheaper and more embedded in schools, the most likely trajectory is a hybrid model where one human teacher orchestrates many AI tools, increasing leverage instead of eliminating the adult educator."
+  ],
+  "confidence": 0.86
+}

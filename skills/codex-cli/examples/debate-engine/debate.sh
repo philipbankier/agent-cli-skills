@@ -10,6 +10,7 @@ set -euo pipefail
 # Usage:
 #   ./debate.sh "Should AI replace teachers?"
 #   ./debate.sh "Is remote work better than office work?"
+#   ./debate.sh --output-dir ./sample-output "Should AI replace teachers?"
 #
 # Requirements:
 #   - Codex CLI: npm install -g @openai/codex
@@ -17,9 +18,34 @@ set -euo pipefail
 #   - jq: brew install jq (or apt install jq)
 # ============================================================================
 
-TOPIC="${1:?Usage: ./debate.sh \"Your debate topic here\"}"
-OUTDIR=$(mktemp -d)
-trap 'rm -rf "$OUTDIR"' EXIT
+OUTPUT_DIR=""
+TOPIC=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --output-dir)
+      OUTPUT_DIR="$2"
+      shift 2
+      ;;
+    *)
+      TOPIC="$1"
+      shift
+      ;;
+  esac
+done
+
+if [[ -z "$TOPIC" ]]; then
+  echo "Usage: ./debate.sh [--output-dir DIR] \"Your debate topic here\""
+  exit 1
+fi
+
+if [[ -n "$OUTPUT_DIR" ]]; then
+  mkdir -p "$OUTPUT_DIR"
+  OUTDIR="$OUTPUT_DIR"
+else
+  OUTDIR=$(mktemp -d)
+  trap 'rm -rf "$OUTDIR"' EXIT
+fi
 
 echo "=== Multi-Perspective Debate Engine (Codex CLI) ==="
 echo "Topic: $TOPIC"

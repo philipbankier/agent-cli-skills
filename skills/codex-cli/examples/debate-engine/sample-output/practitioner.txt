@@ -1,0 +1,11 @@
+{
+  "role": "practitioner",
+  "position": "against",
+  "argument": "In practice, AI works best as a support tool, not a replacement for teachers. Good teaching depends on judgment, motivation, classroom management, and reading emotional and social cues in real time, which AI still handles poorly. The schools that get results use AI to extend teacher capacity, not remove the human adult students rely on.",
+  "evidence": [
+    "Students learn more consistently when they get human feedback, accountability, and encouragement, especially when they are confused, disengaged, or struggling.",
+    "Classrooms are not just content delivery systems; teachers manage behavior, adapt pacing, resolve conflict, and build trust in ways current AI systems cannot reliably do.",
+    "Real deployments show AI is useful for tutoring, drafting materials, and personalization, but outcomes depend heavily on teacher oversight, correction, and integration."
+  ],
+  "confidence": 0.94
+}
