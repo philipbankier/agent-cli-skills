@@ -176,6 +176,8 @@ The `stop_reason` of `"tool_use"` signals the client to execute the tool, build 
 
 ## 5. CLI stream-json Events
 
+> **Note:** Sections 1-4 above describe the raw **Anthropic API** SSE format. This section describes the **CLI wrapper format**, which is completely different. When using `claude -p --output-format stream-json`, the CLI produces **NDJSON** (one JSON object per line), not SSE. Do not confuse the two.
+
 When using `claude -p --output-format stream-json --verbose`, the CLI produces **NDJSON** (one JSON object per line) with its own wrapper types:
 
 **Init event** (first line):

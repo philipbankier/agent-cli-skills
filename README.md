@@ -31,24 +31,16 @@ This repo is also a practical guide to **writing skills** for each CLI platform,
 
 ## Quick Install
 
-Each skill is independently installable. Pick the CLI you use:
-
-| CLI | One-Liner Install |
-|-----|-------------------|
-| **Claude Code** | `git clone https://github.com/philipbankier/agent-cli-skills.git .claude/skills/agent-cli-skills --depth 1` |
-| **Codex CLI** | `git clone https://github.com/philipbankier/agent-cli-skills.git .agents/skills/agent-cli-skills --depth 1` |
-| **Gemini CLI** | `git clone https://github.com/philipbankier/agent-cli-skills.git .gemini/skills/agent-cli-skills --depth 1` |
-
-Or use the install scripts for a targeted single-skill install:
+Each skill is independently installable. The install scripts use sparse checkout to install only the skill you need at the correct path for discovery:
 
 ```bash
-# Install only the Claude Code skill
+# Install the Claude Code skill → .claude/skills/claude-code-automation/
 curl -fsSL https://raw.githubusercontent.com/philipbankier/agent-cli-skills/main/install/install-claude.sh | bash
 
-# Install only the Codex CLI skill
+# Install the Codex CLI skill → .agents/skills/codex-cli-automation/
 curl -fsSL https://raw.githubusercontent.com/philipbankier/agent-cli-skills/main/install/install-codex.sh | bash
 
-# Install only the Gemini CLI skill
+# Install the Gemini CLI skill → .gemini/skills/gemini-cli-automation/
 curl -fsSL https://raw.githubusercontent.com/philipbankier/agent-cli-skills/main/install/install-gemini.sh | bash
 ```
 

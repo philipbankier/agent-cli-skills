@@ -58,7 +58,7 @@ Side-by-side reference for Claude Code, Codex CLI, and Gemini CLI non-interactiv
 | **Full auto** | `--dangerously-skip-permissions` | `--full-auto` + `--dangerously-bypass-approvals-and-sandbox` | `-y` / `--yolo` |
 | **Read-only** | `--permission-mode plan` | `-s read-only` | `--approval-mode plan` |
 | **Sandboxed writes** | — | `-s workspace-write` (default) | — |
-| **Tool whitelist** | `--allowedTools "tool1,tool2"` | — | — |
+| **Tool whitelist** | `--allowedTools "Bash(git:*) Edit"` | — | — |
 | **Budget limit** | `--max-budget-usd 1.00` | — | — |
 
 ## Configuration Files
@@ -78,7 +78,7 @@ Side-by-side reference for Claude Code, Codex CLI, and Gemini CLI non-interactiv
 | **Skill directory** | `.claude/skills/` | `.agents/skills/` | `.gemini/skills/` |
 | **User-level skills** | `~/.claude/skills/` | `~/.codex/skills/` | `~/.gemini/skills/` |
 | **Entry point** | `SKILL.md` | `SKILL.md` | `SKILL.md` |
-| **Subdirectories** | guides/, reference/, examples/ | scripts/, references/, assets/ | (flexible) |
+| **Subdirectories** | guides/, reference/, examples/ | (flexible) | (flexible) |
 | **Extensions** | — | — | Bundles: skills + MCP + commands + themes + hooks |
 | **MCP support** | Via settings | Via config | Via extensions |
 
@@ -87,7 +87,7 @@ Side-by-side reference for Claude Code, Codex CLI, and Gemini CLI non-interactiv
 | | Claude Code | Codex CLI | Gemini CLI |
 |---|---|---|---|
 | **Format** | NDJSON (one JSON per line) | JSONL (`--json`) | Stream JSON (`--output-format stream-json`) |
-| **Requires** | `--verbose` flag (critical!) | — | — |
+| **Recommended with** | `--verbose` flag (enables system/init events) | — | — |
 | **Partial messages** | `--include-partial-messages` | — | Built-in with stream-json |
 | **Event types** | `system`, `assistant`, `result` | `thread.started`, `turn.started`, `item.completed`, `turn.completed` | Session metadata, message chunks, tool calls, stats |
 
@@ -102,7 +102,7 @@ Side-by-side reference for Claude Code, Codex CLI, and Gemini CLI non-interactiv
 ## Key Gotchas Per CLI
 
 ### Claude Code
-- `stream-json` silently fails without `--verbose`
+- `stream-json` works best with `--verbose` (enables system-level init/result events alongside message events)
 - `--system-prompt` replaces (not appends) the default — use `--append-system-prompt`
 - Structured output lands in `.structured_output`, not `.result`
 - No temperature/top_p control via CLI flags

@@ -10,7 +10,7 @@ Complete reference for `codex exec` (alias: `codex e`) non-interactive mode flag
 | `--dangerously-bypass-approvals-and-sandbox` | — | Skip all approvals and sandboxing | Off |
 | `--json` | — | Output JSONL events (`thread.started`, `turn.started`, `item.completed`, `turn.completed`) | Off |
 | `-o <file>` | `--output-last-message` | Write assistant's final message to file | — |
-| `--output-schema <schema>` | — | Validate tool output against JSON Schema | — |
+| `--output-schema <file>` | — | Path to a JSON Schema file describing the model's final response shape | — |
 | `--ephemeral` | — | Don't persist session to disk | Off (sessions persist) |
 | `-s <mode>` | `--sandbox` | Sandbox policy: `read-only`, `workspace-write`, `danger-full-access` | `workspace-write` |
 | `-c key=value` | — | Global config override | — |

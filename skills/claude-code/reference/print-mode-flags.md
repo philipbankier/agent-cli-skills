@@ -26,7 +26,7 @@ Consolidated from 31 tested flag combinations.
 | `--continue, -c` | Session | - | Resume the most recent conversation |
 | `--resume, -r` | Session | - | Resume by session ID or name |
 | `--fork-session` | Session | `false` | Branch from an existing session |
-| `--permission-mode` | Permissions | `default` | Mode: `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `delegate`, `plan` |
+| `--permission-mode` | Permissions | `default` | Mode: `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan`, `auto` |
 | `--dangerously-skip-permissions` | Permissions | `false` | Equivalent to `bypassPermissions` |
 | `--allowedTools` | Tools | - | Pattern-based tool allowlist (repeatable) |
 | `--disallowedTools` | Tools | - | Explicit tool denylist (repeatable) |

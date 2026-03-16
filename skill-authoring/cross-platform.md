@@ -8,7 +8,8 @@ All three CLI agents have converged on remarkably similar skill formats:
 
 | Aspect | Claude Code | Codex CLI | Gemini CLI |
 |--------|------------|-----------|------------|
-| Entry point | `SKILL.md` | `SKILL.md` | `SKILL.md` |
+| Project config | `CLAUDE.md` | `AGENTS.md` | `GEMINI.md` |
+| Skill entry point | `SKILL.md` | `SKILL.md` | `SKILL.md` |
 | Frontmatter | `name`, `description` | `name`, `description` | `name`, `description` |
 | Install location | `.claude/skills/` | `.agents/skills/` | `.gemini/skills/` |
 | Discovery | Auto by description match | Auto by description match | Auto by description match |

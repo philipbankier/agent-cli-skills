@@ -242,8 +242,9 @@ This lets any Anthropic SDK client work with Claude Code without modification.
 
 Things that will bite you if you do not know about them:
 
-1. **`stream-json` requires `--verbose`** — Without the `--verbose` flag, `stream-json` output
-   will error or produce no events. Always pair them together.
+1. **`stream-json` works best with `--verbose`** — The `--verbose` flag enables system-level
+   events (init, cost summary) alongside message events in `stream-json` output. Without it,
+   you may only receive assistant message events. Pair them for full observability.
 
 2. **`--include-partial-messages` for token-level streaming** — Without this flag, you only
    get complete messages. Add it when you need incremental text delivery.

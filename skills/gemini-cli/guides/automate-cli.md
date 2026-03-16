@@ -8,8 +8,8 @@ End-to-end guide for using Gemini CLI in scripts, CI/CD pipelines, and batch pro
 # Using the -p flag
 gemini -p "Explain what this project does"
 
-# Piping input (auto-detects non-TTY)
-echo "Explain this code" | gemini
+# Piping input with -p (recommended for non-interactive)
+echo "Explain this code" | gemini -p "Answer based on the piped input"
 
 # Piping file content
 cat main.py | gemini -p "List all function names in this file"

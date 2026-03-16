@@ -165,7 +165,7 @@ Combined with sandbox, these control autonomy:
 - **`--full-auto`** — Applies automation presets (workspace-write sandbox, on-request approvals)
 - **`--dangerously-bypass-approvals-and-sandbox`** — No approvals, no sandbox. Only use in isolated environments.
 
-For true full autonomy, you need: `full-auto = true` + `bypass-approvals = true` + `bypass-sandbox = true` + `trusted-workspace = true`.
+For true full autonomy: `codex exec --full-auto --dangerously-bypass-approvals-and-sandbox "task"`. Without both flags, approval prompts may still appear.
 
 ### AGENTS.md Configuration
 
