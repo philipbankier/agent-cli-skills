@@ -26,7 +26,7 @@ When using `--output-format json`, the CLI returns:
     "cache_read_input_tokens": 1000
   },
   "modelUsage": {
-    "claude-sonnet-4-20250514": {
+    "claude-sonnet-4-6": {
       "inputTokens": 150,
       "outputTokens": 50,
       "cacheCreationInputTokens": 0,
@@ -52,7 +52,7 @@ The standard API response format:
   "content": [
     {"type": "text", "text": "Hello! How can I help you?"}
   ],
-  "model": "claude-sonnet-4-20250514",
+  "model": "claude-sonnet-4-6",
   "stop_reason": "end_turn",
   "stop_sequence": null,
   "usage": {

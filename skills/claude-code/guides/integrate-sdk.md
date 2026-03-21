@@ -27,7 +27,7 @@ client = anthropic.Anthropic(
 )
 
 message = client.messages.create(
-    model="claude-sonnet-4-20250514",
+    model="claude-sonnet-4-6",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Hello!"}]
 )
@@ -38,7 +38,7 @@ print(message.content[0].text)
 
 ```python
 with client.messages.stream(
-    model="claude-sonnet-4-20250514",
+    model="claude-sonnet-4-6",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Explain recursion"}]
 ) as stream:
@@ -51,7 +51,7 @@ print()
 
 ```python
 message = client.messages.create(
-    model="claude-sonnet-4-20250514",
+    model="claude-sonnet-4-6",
     max_tokens=1024,
     tools=[{
         "name": "get_weather",
@@ -73,7 +73,7 @@ for block in message.content:
 
 ```python
 message = client.messages.create(
-    model="claude-sonnet-4-20250514",
+    model="claude-sonnet-4-6",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Extract name and email from: John at john@example.com"}],
     output_format={
@@ -104,7 +104,7 @@ const client = new Anthropic({
 });
 
 const message = await client.messages.create({
-  model: 'claude-sonnet-4-20250514',
+  model: 'claude-sonnet-4-6',
   max_tokens: 1024,
   messages: [{ role: 'user', content: 'Hello!' }],
 });
@@ -115,7 +115,7 @@ console.log(message.content[0].text);
 
 ```typescript
 const stream = client.messages.stream({
-  model: 'claude-sonnet-4-20250514',
+  model: 'claude-sonnet-4-6',
   max_tokens: 1024,
   messages: [{ role: 'user', content: 'Explain async/await' }],
 });
@@ -130,7 +130,7 @@ for await (const event of stream) {
 
 ```typescript
 const message = await client.messages.create({
-  model: 'claude-sonnet-4-20250514',
+  model: 'claude-sonnet-4-6',
   max_tokens: 1024,
   tools: [{
     name: 'get_weather',
@@ -152,7 +152,7 @@ const message = await client.messages.create({
 curl -s -X POST http://localhost:8321/v1/messages \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "claude-sonnet-4-20250514",
+    "model": "claude-sonnet-4-6",
     "max_tokens": 1024,
     "messages": [{"role": "user", "content": "Hello!"}]
   }' | jq '.content[0].text'
@@ -161,7 +161,7 @@ curl -s -X POST http://localhost:8321/v1/messages \
 curl -N -X POST http://localhost:8321/v1/messages \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "claude-sonnet-4-20250514",
+    "model": "claude-sonnet-4-6",
     "max_tokens": 1024,
     "stream": true,
     "messages": [{"role": "user", "content": "Hello!"}]

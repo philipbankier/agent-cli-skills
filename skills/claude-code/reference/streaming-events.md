@@ -60,7 +60,7 @@ Emitted once at the beginning of every response. Contains the full message objec
     "type": "message",
     "role": "assistant",
     "content": [],
-    "model": "claude-sonnet-4-20250514",
+    "model": "claude-sonnet-4-6",
     "stop_reason": null,
     "stop_sequence": null,
     "usage": { "input_tokens": 25, "output_tokens": 1 }

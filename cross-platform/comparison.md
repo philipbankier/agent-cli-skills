@@ -48,8 +48,8 @@ Side-by-side reference for Claude Code, Codex CLI, and Gemini CLI non-interactiv
 |---|---|---|---|
 | **Flag** | `--model <name>` | `--model <name>` | `-m <name>` |
 | **Aliases** | `sonnet`, `opus`, `haiku` | — | — |
-| **Default** | Claude Sonnet 4 | Depends on user config | Gemini 2.5 Pro |
-| **Top models** | Opus 4, Sonnet 4, Haiku 4.5 | gpt-5.4, o3 | Gemini 3 Pro, Gemini 2.5 Flash |
+| **Default** | Claude Sonnet 4.6 | Depends on user config | Gemini 2.5 Pro |
+| **Top models** | Opus 4.6, Sonnet 4.6, Haiku 4.5 | gpt-5.4, o3 | Gemini 3 Pro, Gemini 2.5 Flash |
 
 ## Permission & Safety
 

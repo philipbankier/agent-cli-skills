@@ -70,9 +70,9 @@ When a POST hits `/v1/messages`:
    `model` and `messages` fields are present.
 
 2. **Map model name** -- Translate full model identifiers to CLI short names:
-   - `claude-sonnet-4-20250514` -> `sonnet`
-   - `claude-3-5-haiku-*` -> `haiku`
-   - `claude-opus-4-*` -> `opus`
+   - `claude-sonnet-4-6` -> `sonnet`
+   - `claude-haiku-4-5-*` -> `haiku`
+   - `claude-opus-4-6` -> `opus`
    - Short names pass through unchanged.
 
 3. **Build CLI command** -- Base flags always include:

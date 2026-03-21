@@ -164,7 +164,7 @@ client = anthropic.Anthropic(
 
 # Non-streaming
 message = client.messages.create(
-    model="claude-sonnet-4-20250514",
+    model="claude-sonnet-4-6",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Hello!"}]
 )
@@ -172,7 +172,7 @@ print(message.content[0].text)
 
 # Streaming
 with client.messages.stream(
-    model="claude-sonnet-4-20250514",
+    model="claude-sonnet-4-6",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Explain recursion"}]
 ) as stream:
@@ -232,7 +232,7 @@ const client = new Anthropic({
 
 // Non-streaming
 const message = await client.messages.create({
-  model: 'claude-sonnet-4-20250514',
+  model: 'claude-sonnet-4-6',
   max_tokens: 1024,
   messages: [{ role: 'user', content: 'Hello!' }],
 });
@@ -240,7 +240,7 @@ console.log(message.content[0].text);
 
 // Streaming
 const stream = client.messages.stream({
-  model: 'claude-sonnet-4-20250514',
+  model: 'claude-sonnet-4-6',
   max_tokens: 1024,
   messages: [{ role: 'user', content: 'Explain async/await' }],
 });
@@ -255,7 +255,7 @@ console.log();
 ### Tool Use via CC-Bridge
 ```typescript
 const message = await client.messages.create({
-  model: 'claude-sonnet-4-20250514',
+  model: 'claude-sonnet-4-6',
   max_tokens: 1024,
   tools: [{
     name: 'get_weather',

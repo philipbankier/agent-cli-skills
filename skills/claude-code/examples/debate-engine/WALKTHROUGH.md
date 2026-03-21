@@ -135,7 +135,7 @@ execution -- no framework, no queue, just the shell's built-in job control.
 | `--json-schema` | Validates output against the schema; result lands in `.structured_output` |
 | `--no-session-persistence` | Stateless -- no session file written to disk (critical for batch jobs) |
 | `--tools ""` | Disables all tool access -- pure LLM reasoning, no file system or shell |
-| `--model sonnet` | Model selection using the short alias (equivalent to `claude-sonnet-4-20250514`) |
+| `--model sonnet` | Model selection using the short alias (equivalent to `claude-sonnet-4-6`) |
 
 **Reference:** [guides/automate-cli.md](../../guides/automate-cli.md), [reference/print-mode-flags.md](../../reference/print-mode-flags.md)
 
@@ -331,7 +331,7 @@ final synthesis to stdout.
 | **JSON extraction** | `jq '.structured_output'` | `json.loads(message.content[0].text)` |
 | **Error handling** | Minimal (`set -euo pipefail`) | Python exceptions + try/except |
 | **Cost tracking** | Built-in (`total_cost_usd` field) | Not available via SDK response |
-| **Model names** | Short aliases (`sonnet`) | Full identifiers (`claude-sonnet-4-20250514`) |
+| **Model names** | Short aliases (`sonnet`) | Full identifiers (`claude-sonnet-4-6`) |
 | **Best for** | Scripts, CI/CD, quick experiments | Applications, larger projects |
 
 **When to use which:** Use Bash for quick automation, pipelines, and CI/CD where you want

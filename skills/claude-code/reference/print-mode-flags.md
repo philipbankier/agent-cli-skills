@@ -186,7 +186,7 @@ Event sequence:
 **Notes:** Fallback triggers on capacity errors, not on content errors. Transparent to caller.
 
 #### Combination 15: Full Model ID
-**Command:** `claude -p "What is 2+2?" --model claude-sonnet-4-20250514`
+**Command:** `claude -p "What is 2+2?" --model claude-sonnet-4-6`
 **Output:** Response from the exact model version specified.
 **Notes:** Use for reproducibility. Full IDs pin to a specific model snapshot.
 

@@ -15,7 +15,7 @@ Flags, JSON output shapes, and examples have been tested against these versions:
 
 | CLI | Version | Status |
 |-----|---------|--------|
-| Claude Code | v2.1.76 | Fully tested — flags verified, examples run with captured output |
+| Claude Code | v2.1.81 | Fully tested — flags verified, examples run with captured output |
 | Codex CLI | v0.114.0 | Fully tested — flags verified, examples run with captured output |
 | Gemini CLI | v0.33.0 | Community-contributed — flags checked against `--help`, examples not yet run |
 

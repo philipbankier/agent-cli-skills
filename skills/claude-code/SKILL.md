@@ -262,7 +262,7 @@ Things that will bite you if you do not know about them:
    in sandboxed or controlled environments where you trust the prompt source.
 
 6. **Model name aliases work** — You can pass short names like `sonnet`, `opus`, or `haiku`
-   instead of full model identifiers like `claude-sonnet-4-20250514`.
+   instead of full model identifiers like `claude-sonnet-4-6`.
 
 7. **No sampling parameter control via CLI** — Temperature, top_p, top_k, and max_tokens for
    the model response are not configurable through CLI flags. Claude uses its defaults.
