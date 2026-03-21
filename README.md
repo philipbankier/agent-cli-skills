@@ -75,6 +75,7 @@ See [cross-platform/comparison.md](cross-platform/comparison.md) for the full fe
 - [CI/CD Templates](cross-platform/patterns/ci-cd-matrix.md) — GitHub Actions for each CLI
 - [Structured Output Patterns](cross-platform/patterns/structured-output.md) — JSON schema per CLI
 - [API Proxy Pattern](cross-platform/patterns/api-proxy-pattern.md) — CLIProxyAPI, CC-Bridge, and when to use each
+- [LiteLLM Integration](cross-platform/patterns/litellm-integration.md) — Use CLI subscriptions as LiteLLM backends
 
 ### Skill Authoring
 

@@ -85,7 +85,7 @@ cli-proxy-api
 
 ### Usage with SDKs
 
-Once running, point any SDK at the proxy:
+Once running, point any SDK at the proxy. For LiteLLM-based agents, see the dedicated [LiteLLM Integration guide](litellm-integration.md).
 
 ```python
 # Python — Anthropic SDK
