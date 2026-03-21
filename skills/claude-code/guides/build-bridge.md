@@ -2,6 +2,10 @@
 
 # Build an API-Compatible Bridge Server
 
+> **Looking for a production-ready solution?** [CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI) (18k+ stars) is a multi-provider credential proxy supporting Claude, Codex, Gemini, and more — with load balancing, Docker deployment, and format translation. See the [API Proxy Pattern guide](../../../cross-platform/patterns/api-proxy-pattern.md) for a full comparison.
+>
+> This guide is for **understanding the pattern** and building a Claude-only bridge from scratch.
+
 ## Goal
 
 Build an HTTP server that wraps `claude -p` and exposes an Anthropic-compatible API endpoint.

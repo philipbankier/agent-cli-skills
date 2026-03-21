@@ -169,11 +169,11 @@ ai-review:
 ## Configuration Overrides
 
 ```bash
-# Override global config for a single run
-codex exec -c model=gpt-4.1 "Use GPT-4.1 for this task"
+# Override model for a single run
+codex exec -m o3 "Use o3 for this task"
 
 # Combine with other flags
-codex exec -c model=o4-mini --full-auto --ephemeral "Quick analysis"
+codex exec -m o3 --full-auto --ephemeral "Quick analysis"
 ```
 
 ## Error Handling

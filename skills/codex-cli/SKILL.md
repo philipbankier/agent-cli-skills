@@ -21,7 +21,7 @@ echo "Your prompt" | codex exec -             # pipe from stdin
 ```
 
 **Key differentiators from other CLI agents:**
-- **Session resume** — `codex resume --last` continues where you left off across invocations
+- **Session resume** — `codex exec resume --last` continues where you left off across invocations
 - **Output to file** — `-o output.txt` writes the final assistant message to a file
 - **AGENTS.md** — Configuration file shared with Copilot and Cursor (write once, use everywhere)
 - **Sandbox modes** — Granular control: read-only, workspace-write, or full-access
@@ -52,7 +52,7 @@ Key commands: `codex exec`, `--full-auto`, `--json`, `-o`
 
 ### "I want to build multi-step workflows that maintain context across invocations"
 -> Read [guides/session-management.md](guides/session-management.md)
-Key commands: `codex resume --last`, `--ephemeral`, `-o`
+Key commands: `codex exec resume --last`, `--ephemeral`, `-o`
 
 ### "I want to configure AGENTS.md for my project (works with Copilot and Cursor too)"
 -> Read [guides/agents-md.md](guides/agents-md.md)
@@ -110,10 +110,10 @@ codex exec "Generate a changelog from recent commits" -o changelog.md
 codex exec "Analyze the authentication module and identify improvement areas"
 
 # Step 2: Resume and implement changes
-codex resume --last "Now implement the top 3 improvements you identified"
+codex exec resume --last "Now implement the top 3 improvements you identified"
 
 # Step 3: Resume and write tests
-codex resume --last "Write tests for the changes you just made"
+codex exec resume --last "Write tests for the changes you just made"
 ```
 
 ### Recipe 4: CI/CD Integration
@@ -182,8 +182,8 @@ Files concatenate from root downward. This is shared with Copilot and Cursor —
 Codex persists sessions to disk by default. Resume them with:
 
 ```bash
-codex resume --last          # Continue the most recent session
-codex resume --all           # List all sessions, pick one
+codex exec resume --last          # Continue the most recent session
+codex exec resume --all           # List all sessions, pick one
 ```
 
 Use `--ephemeral` when you want stateless, fire-and-forget invocations.
@@ -206,7 +206,7 @@ Use `--ephemeral` when you want stateless, fire-and-forget invocations.
 5. **AGENTS.md has a size limit** — Combined instructions cap at `project_doc_max_bytes`
    (32 KiB default). If your AGENTS.md chain exceeds this, later files silently get truncated.
 
-6. **Session resume is directory-scoped** — `codex resume --last` finds the most recent
+6. **Session resume is directory-scoped** — `codex exec resume --last` finds the most recent
    session in the current directory. Changing directories changes which session is "last".
 
 7. **API key auth is separate from ChatGPT auth** — API key billing goes to your OpenAI Platform

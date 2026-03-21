@@ -39,8 +39,8 @@ Side-by-side reference for Claude Code, Codex CLI, and Gemini CLI non-interactiv
 |---|---|---|---|
 | **Stateless** | `--no-session-persistence` | `--ephemeral` | Default |
 | **Named session** | `--session-id <id>` | — | — |
-| **Resume last** | `--continue` | `codex resume --last` | `-r` / `--resume` |
-| **Resume all** | — | `codex resume --all` | `--list-sessions` |
+| **Resume last** | `--continue` | `codex exec resume --last` | `-r` / `--resume` |
+| **Resume all** | — | `codex exec resume --all` | `--list-sessions` |
 
 ## Model Selection
 
@@ -49,7 +49,7 @@ Side-by-side reference for Claude Code, Codex CLI, and Gemini CLI non-interactiv
 | **Flag** | `--model <name>` | `--model <name>` | `-m <name>` |
 | **Aliases** | `sonnet`, `opus`, `haiku` | — | — |
 | **Default** | Claude Sonnet 4 | Depends on user config | Gemini 2.5 Pro |
-| **Top models** | Opus 4, Sonnet 4, Haiku 3.5 | o4-mini, GPT-4.1 | Gemini 3 Pro, Gemini 2.5 Flash |
+| **Top models** | Opus 4, Sonnet 4, Haiku 4.5 | gpt-5.4, o3 | Gemini 3 Pro, Gemini 2.5 Flash |
 
 ## Permission & Safety
 
@@ -110,7 +110,7 @@ Side-by-side reference for Claude Code, Codex CLI, and Gemini CLI non-interactiv
 ### Codex CLI
 - Full auto requires multiple flags: `--full-auto` + `--dangerously-bypass-approvals-and-sandbox` + trusted workspace
 - `--json` outputs JSONL with event types: `thread.started`, `turn.started`, `item.completed`, `turn.completed`
-- Session resume is a top-level subcommand: `codex resume --last`, not under `exec`
+- Session resume is a subcommand of exec: `codex exec resume --last`
 
 ### Gemini CLI
 - A single prompt can trigger multiple API requests (affects quota)
@@ -118,3 +118,15 @@ Side-by-side reference for Claude Code, Codex CLI, and Gemini CLI non-interactiv
 - `-y`/`--yolo` auto-approves all changes; for granular control use `--approval-mode` (`default`, `auto_edit`, `yolo`, `plan`)
 - Sessions supported with `-r`/`--resume`, `--list-sessions`, `--delete-session`
 - Monitor usage with `/stats model` in interactive mode
+
+## API Proxy Options
+
+For SDK compatibility without API keys, see the [API Proxy Pattern guide](patterns/api-proxy-pattern.md).
+
+| Aspect | Direct CLI | CC-Bridge | CLIProxyAPI |
+|--------|-----------|-----------|-------------|
+| **How it works** | Shell commands | HTTP → CLI subprocess | HTTP → direct API call |
+| **Multi-provider** | One CLI at a time | Claude only | Claude, Codex, Gemini, + more |
+| **Multi-account** | No | No | Yes (round-robin) |
+| **SDK compatible** | No | Yes (Anthropic) | Yes (OpenAI/Claude/Gemini) |
+| **Best for** | Scripts, CI/CD | Learning, local dev | Production, multi-tenant |

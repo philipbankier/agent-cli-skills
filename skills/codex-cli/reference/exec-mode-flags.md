@@ -21,8 +21,8 @@ Complete reference for `codex exec` (alias: `codex e`) non-interactive mode flag
 
 | Command | Description |
 |---------|-------------|
-| `codex resume --last` | Resume the most recent session |
-| `codex resume --all` | List all sessions, pick one to resume |
+| `codex exec resume --last` | Resume the most recent session |
+| `codex exec resume --all` | List all sessions, pick one to resume |
 
 ## Sandbox Modes
 
@@ -57,10 +57,10 @@ Plus the workspace must be marked as trusted. Without all conditions, approval p
 
 ```bash
 # Override model for a single run
-codex exec -c model=gpt-4.1 "Use GPT-4.1 for this"
+codex exec -m o3 "Use o3 for this"
 
-# Multiple overrides
-codex exec -c model=gpt-4.1 -c temperature=0 "Deterministic output"
+# Config override syntax (alternative to -m flag)
+codex exec -c model="o3" "Use o3 for this"
 ```
 
 ## Exit Codes

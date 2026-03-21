@@ -98,7 +98,7 @@ Every cross-platform skill should include a mapping of equivalent flags:
 | JSON output | `--output-format json` | `--json` | `--output-format json` |
 | Auto-approve | `--dangerously-skip-permissions` | `--full-auto --dangerously-bypass-approvals-and-sandbox` | `-y` / `--yolo` |
 | No session | `--no-session-persistence` | `--ephemeral` | Default (use `-r`/`--resume` for sessions) |
-| Model select | `--model sonnet` | `--model o4-mini` | `-m gemini-2-5-flash` |
+| Model select | `--model sonnet` | `--model o3` | `-m gemini-2-5-flash` |
 
 ## Shared Patterns That Work Everywhere
 
@@ -138,7 +138,7 @@ When writing cross-platform skills, always call out these differences:
 
 ### Session Behavior
 - **Claude Code**: Persists sessions by default — add `--no-session-persistence` for stateless
-- **Codex CLI**: Has built-in session resume with `codex resume --last` (top-level subcommand)
+- **Codex CLI**: Has built-in session resume with `codex exec resume --last`
 - **Gemini CLI**: Stateless by default; sessions available with `-r`/`--resume` and `--list-sessions`
 
 ### Permission Models

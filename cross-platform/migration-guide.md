@@ -42,7 +42,7 @@ git diff main...HEAD | gemini -p \
 | Streaming | `--output-format stream-json --verbose` | `--json` (JSONL events) | `--output-format stream-json` |
 | Auto-approve all | `--dangerously-skip-permissions` | `--full-auto --dangerously-bypass-approvals-and-sandbox` | `-y` / `--yolo` |
 | Stateless | `--no-session-persistence` | `--ephemeral` | Default (sessions available with `-r`/`--resume`) |
-| Model select | `--model sonnet` | `--model o4-mini` | `-m gemini-2-5-flash` |
+| Model select | `--model sonnet` | `--model o3` | `-m gemini-2-5-flash` |
 | System prompt | `--append-system-prompt "..."` | Via AGENTS.md | Via GEMINI.md |
 | Budget limit | `--max-budget-usd 1.00` | — | — |
 

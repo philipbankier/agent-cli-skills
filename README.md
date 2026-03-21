@@ -25,7 +25,7 @@ CLI interfaces change between versions. If you find a discrepancy, [open an issu
 
 ## Why This Exists
 
-AI CLI agents ship with powerful non-interactive modes, but they're underdocumented. Flags have non-obvious interactions (`stream-json` silently fails without `--verbose` in Claude Code), output formats differ between tools, and there's no single resource that covers all three. Each skill in this repo packages the tested patterns, gotchas, and production-ready recipes so your agent — or you — gets it right the first time.
+AI CLI agents ship with powerful non-interactive modes, but they're underdocumented. Flags have non-obvious interactions (`stream-json` output changes with `--verbose` in Claude Code), output formats differ between tools, and there's no single resource that covers all three. Each skill in this repo packages the tested patterns, gotchas, and production-ready recipes so your agent — or you — gets it right the first time.
 
 This repo is also a practical guide to **writing skills** for each CLI platform, including a cross-platform skill design guide for building portable agent extensions.
 
@@ -74,6 +74,7 @@ See [cross-platform/comparison.md](cross-platform/comparison.md) for the full fe
 - [Multi-Agent Patterns](cross-platform/patterns/parallel-agents.md) — orchestration across all 3
 - [CI/CD Templates](cross-platform/patterns/ci-cd-matrix.md) — GitHub Actions for each CLI
 - [Structured Output Patterns](cross-platform/patterns/structured-output.md) — JSON schema per CLI
+- [API Proxy Pattern](cross-platform/patterns/api-proxy-pattern.md) — CLIProxyAPI, CC-Bridge, and when to use each
 
 ### Skill Authoring
 
@@ -137,6 +138,7 @@ Most valuable contributions:
 
 ## Sources & Credits
 
+- [CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI) — Multi-provider credential proxy (Claude, Codex, Gemini, Qwen)
 - [CC-Bridge](https://github.com/ranaroussi/cc-bridge) by Ran Aroussi
 - [Print Mode State Machine](https://gist.github.com/danialhasan/abbf1d7e721475717e5d07cee3244509) by Danial Hasan
 - [Claude Code documentation](https://docs.anthropic.com/en/docs/claude-code) by Anthropic

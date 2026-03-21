@@ -16,29 +16,29 @@ This enables a powerful pattern: multi-step workflows where each step builds on 
 codex exec "Analyze the authentication module. Identify the top 3 security concerns."
 
 # Step 2: Resume and act on analysis
-codex resume --last \
+codex exec resume --last \
   "Implement fixes for the security concerns you identified. Start with the highest priority."
 
 # Step 3: Resume and verify
-codex resume --last \
+codex exec resume --last \
   "Write tests to verify the security fixes you just implemented."
 
 # Step 4: Resume and document
-codex resume --last \
+codex exec resume --last \
   "Write a summary of all changes made, suitable for a PR description." \
   -o pr-description.md
 ```
 
-Each `codex resume --last` picks up the full conversation context from the previous step.
+Each `codex exec resume --last` picks up the full conversation context from the previous step.
 
 ### Resume Options
 
 ```bash
 # Resume the most recent session
-codex resume --last "Continue from where we left off"
+codex exec resume --last "Continue from where we left off"
 
 # List all available sessions and choose one
-codex resume --all
+codex exec resume --all
 
 # Resume is directory-scoped — the "last" session depends on your current directory
 ```
@@ -50,7 +50,7 @@ codex resume --all
 codex exec "Read through src/ and create a mental model of the architecture"
 
 # Second pass: capture the result to file
-codex resume --last \
+codex exec resume --last \
   "Now write an architecture document based on your analysis" \
   -o ARCHITECTURE.md
 ```
@@ -75,7 +75,7 @@ codex exec "What time is it?" --ephemeral
 Sessions are stored on disk per-directory. Key behaviors:
 
 - **Directory-scoped**: Each working directory has its own session history
-- **`codex resume --last`**: Finds the most recent session in the current directory
+- **`codex exec resume --last`**: Finds the most recent session in the current directory
 - **Disk accumulation**: Without `--ephemeral`, sessions pile up over time
 
 ## Practical Patterns
@@ -92,12 +92,12 @@ echo "Step 1: Analyzing $FILE..."
 codex exec "Read $FILE and identify code smells, complexity issues, and improvement opportunities. List them ranked by impact."
 
 echo "Step 2: Refactoring..."
-codex resume --last \
+codex exec resume --last \
   "Now implement the top improvements you identified. Make the changes directly to the file." \
   --full-auto
 
 echo "Step 3: Verifying..."
-codex resume --last \
+codex exec resume --last \
   "Review the changes you just made. Are there any regressions or issues?" \
   -o "/tmp/refactor-review-$(basename "$FILE").md"
 
@@ -114,7 +114,7 @@ echo "Review saved to /tmp/refactor-review-$(basename "$FILE").md"
 codex exec "Read all files in docs/ and understand the API design patterns used in this project."
 
 # Step 2: Generate (uses accumulated context)
-codex resume --last \
+codex exec resume --last \
   "Based on your understanding, write API documentation for the endpoints in src/api/. Follow the same patterns you found in docs/." \
   -o docs/api-reference.md
 ```

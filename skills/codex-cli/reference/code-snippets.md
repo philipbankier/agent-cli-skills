@@ -55,8 +55,8 @@ ls "$OUTDIR/"
 # iterative-review.sh — Analyze, then fix, then verify
 
 codex exec "Read the codebase and identify the top 3 bugs"
-codex resume --last "Fix the highest-priority bug you found" --full-auto
-codex resume --last "Verify the fix doesn't break any existing tests" -o review.md
+codex exec resume --last "Fix the highest-priority bug you found" --full-auto
+codex exec resume --last "Verify the fix doesn't break any existing tests" -o review.md
 echo "Review saved to review.md"
 ```
 
