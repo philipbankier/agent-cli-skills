@@ -25,7 +25,13 @@ CLI interfaces change between versions. If you find a discrepancy, [open an issu
 
 ## Why This Exists
 
-AI CLI agents ship with powerful non-interactive modes, but they're underdocumented. Flags have non-obvious interactions (`stream-json` output changes with `--verbose` in Claude Code), output formats differ between tools, and there's no single resource that covers all three. Each skill in this repo packages the tested patterns, gotchas, and production-ready recipes so your agent — or you — gets it right the first time.
+An agent can run `claude --help` and figure things out. So why does this repo exist?
+
+**`--help` doesn't tell you what fails silently.** Nested `claude -p` calls produce empty output from within Claude Code. `codex exec` defaults to `danger-full-access` sandbox. `grep -o '{.*}'` breaks on multi-line JSON from CLI output. `--permission-mode delegate` doesn't exist despite looking plausible. These gotchas only surface by running the tools and failing — we've done that so your agent doesn't have to.
+
+**Cross-platform patterns don't exist anywhere else.** No CLI's docs explain how to port a script from Claude to Codex, set up CLIProxyAPI with LiteLLM, or build a multi-agent debate engine across all three CLIs. Each vendor documents their own tool in isolation.
+
+**Pre-computed research saves tokens.** An agent exploring from scratch burns thousands of tokens and dozens of tool calls to discover what each flag does. These skills front-load that research into a single file read.
 
 This repo is also a practical guide to **writing skills** for each CLI platform, including a cross-platform skill design guide for building portable agent extensions.
 
