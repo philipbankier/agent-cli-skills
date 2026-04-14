@@ -5,7 +5,7 @@ description: Automate Google's Gemini CLI with non-interactive headless mode, ex
 
 # Gemini CLI Automation
 
-> **Verification status (2026-04-14):** Subcommand surface (`gemini --help`, `gemini skills --help`, `gemini extensions --help`, `gemini hooks --help`) verified live against **Gemini CLI v0.33.0** — see [reference/subcommands.md](reference/subcommands.md). Multi-agent example scripts under `examples/` are still community-contributed and have **not** been run end-to-end. Upstream is currently v0.37.1; the gap is tracked in this commit batch. If you have Gemini CLI configured, please run the example scripts and submit a PR with corrections.
+> **Verification status (2026-04-14):** Subcommand surface (`gemini --help`, `gemini skills --help`, `gemini extensions --help`, `gemini hooks --help`) verified live against **Gemini CLI v0.33.0** — see [reference/subcommands.md](reference/subcommands.md). Multi-agent example scripts under `examples/` are still community-contributed and have **not** been run end-to-end. Upstream is currently v0.37.2; the gap is tracked in [reference/changelog.md](reference/changelog.md). If you have Gemini CLI configured, please run the example scripts and submit a PR with corrections.
 
 ## Overview
 
@@ -263,3 +263,4 @@ Load these files only when the decision router points you to them:
 | `reference/json-output.md` | JSON and stream-json output shapes | Parsing structured responses |
 | `reference/code-snippets.md` | Copy-paste code examples in Bash, Python, JS | Need a working starting point |
 | `reference/known-issues.md` | Verified gotchas (code removal bug #23497, deprecated flags, lossy `gemini hooks migrate`) | Debugging unexpected behavior — check here before assuming it's your code |
+| `reference/changelog.md` | Per-version notes for v0.34–v0.37 from official release notes | Deciding what's in the upstream gap before you upgrade |

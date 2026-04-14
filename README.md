@@ -16,8 +16,8 @@ Flags, JSON output shapes, and examples have been tested against these versions.
 | CLI | Tested against | Latest upstream | Status |
 |-----|----------------|-----------------|--------|
 | Claude Code | v2.1.104 | v2.1.104 | Fully tested — flags verified live, examples run with captured output |
-| Codex CLI | v0.114.0 | v0.120.0 | Local install verified live; gap to upstream tracked in this commit batch |
-| Gemini CLI | v0.33.0 | v0.37.1 | Subcommand APIs verified live; example scripts community-contributed, not run end-to-end |
+| Codex CLI | v0.114.0 | v0.120.0 | Local install verified live; v0.115–v0.120 documented from release notes ([changelog](skills/codex-cli/reference/changelog.md)) |
+| Gemini CLI | v0.33.0 | v0.37.2 | Subcommand APIs verified live; example scripts community-contributed, not run end-to-end. v0.34–v0.37 from release notes ([changelog](skills/gemini-cli/reference/changelog.md)) |
 
 > **Gemini CLI example contributors welcome!** Subcommand surface (`gemini skills`, `gemini extensions`, `gemini hooks`) is now verified, but the multi-agent example scripts have not been run end-to-end. If you have Gemini CLI configured, please run them and submit a PR with corrections and sample output.
 
