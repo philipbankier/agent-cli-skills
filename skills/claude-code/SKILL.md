@@ -277,6 +277,24 @@ Things that will bite you if you do not know about them:
    `unset CLAUDECODE`. Scripts that spawn `claude -p` (like the debate engine) must be run
    from a standalone terminal, not from within Claude Code.
 
+10. **`--bare` is the right tool for clean CI** — `--bare` skips hooks, LSP, plugin sync,
+    auto-memory, keychain reads, and CLAUDE.md auto-discovery. It also forces auth strictly
+    to `ANTHROPIC_API_KEY` or `apiKeyHelper` — OAuth and keychain are never touched. If a
+    CI run fails because of ambient state on the runner (a stale plugin, a leftover hook,
+    a CLAUDE.md from a previous job), `--bare` is the answer. You then have to supply
+    everything explicitly via `--system-prompt`, `--add-dir`, `--mcp-config`, `--settings`,
+    `--agents`, `--plugin-dir` — there are no implicit defaults left.
+
+11. **`--effort` is a per-turn knob, not a per-session one** — `--effort {low|medium|high|max}`
+    sets the reasoning budget for each turn. `max` unlocks the most capable mode for the
+    selected model and is significantly more expensive. Pair with `--max-budget-usd` to put
+    a ceiling on the resulting spend.
+
+12. **`--tmux` requires `--worktree`** — `--tmux` is rejected as an error if there's no
+    `--worktree` flag to scope the pane to. The intended pattern is parallel-agent
+    orchestration: each agent runs in its own worktree with its own tmux pane, and a
+    coordinator process diffs the worktrees afterward.
+
 ---
 
 ## File Map
@@ -288,7 +306,8 @@ Load these files only when the decision router points you to them:
 | `guides/automate-cli.md` | End-to-end guide for CLI automation and scripting | Building shell scripts, CI/CD pipelines, batch jobs |
 | `guides/build-bridge.md` | Architecture and setup guide for CC-Bridge server | Exposing Claude as an HTTP API endpoint |
 | `guides/integrate-sdk.md` | SDK integration patterns (Python, TypeScript, Go) | Connecting Anthropic SDKs to local bridge |
-| `reference/print-mode-flags.md` | Complete flag reference with 31+ tested combinations | Need to know exact flag syntax or interactions |
+| `reference/print-mode-flags.md` | Complete flag reference with 38 tested combinations (v2.1.104 verified) | Need to know exact flag syntax or interactions |
+| `reference/commands.md` | Top-level subcommand reference (`agents`, `auth`, `doctor`, `mcp`, `plugin`, etc.) | Using `claude` subcommands beyond `-p` and interactive mode |
 | `reference/streaming-events.md` | SSE and stream-json event type documentation | Implementing real-time streaming consumers |
 | `reference/json-schemas.md` | JSON output shapes and schema validation patterns | Parsing responses or defining structured output |
 | `reference/code-snippets.md` | Copy-paste code examples in Bash, Python, Go, JS | Need a working starting point in a specific language |

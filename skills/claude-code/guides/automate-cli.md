@@ -209,9 +209,8 @@ claude -p "Analyze this large codebase" \
   --max-budget-usd 1.00 \
   --output-format json
 
-# Turn limit
-claude -p "Fix bugs iteratively" \
-  --max-turns 5
+# Effort budget (lower effort = lower cost per turn)
+claude -p "Quick syntax check" --effort low
 
 # Model fallback (if primary is overloaded)
 claude -p "Quick analysis" \
@@ -223,11 +222,11 @@ claude -p "Deploy review" \
   --model sonnet \
   --fallback-model haiku \
   --max-budget-usd 0.50 \
-  --max-turns 3 \
+  --effort medium \
   --no-session-persistence
 ```
 
-Always set `--max-budget-usd` in automated pipelines to prevent runaway costs. Pair it with `--max-turns` to bound execution time. The `--fallback-model` flag provides resilience when your primary model is rate-limited or unavailable.
+Always set `--max-budget-usd` in automated pipelines to prevent runaway costs. Use `--effort low|medium|high|max` to tune the per-turn reasoning budget. The `--fallback-model` flag provides resilience when your primary model is rate-limited or unavailable.
 
 ## CI/CD Integration Patterns
 

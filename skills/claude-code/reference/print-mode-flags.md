@@ -3,7 +3,7 @@
 # Print Mode Flag Reference & State Machine
 
 Complete flag reference for Claude CLI `-p` (print/non-interactive) mode.
-Consolidated from 31 tested flag combinations.
+Last verified against `claude --help` for **Claude Code v2.1.104** on 2026-04-14.
 
 ---
 
@@ -12,22 +12,34 @@ Consolidated from 31 tested flag combinations.
 | Flag | Category | Default | Description |
 |------|----------|---------|-------------|
 | `-p, --print` | Core | - | Enable print (non-interactive) mode |
+| `--bare` | Core | `false` | Minimal mode: skip hooks, LSP, plugin sync, attribution, auto-memory, keychain, CLAUDE.md auto-discovery. Sets `CLAUDE_CODE_SIMPLE=1` (auth strictly `ANTHROPIC_API_KEY` or `apiKeyHelper`) |
+| `--effort` | Core | - | Effort level: `low`, `medium`, `high`, `max` |
+| `--brief` | Core | `false` | Enable `SendUserMessage` tool (agent-to-user communication) |
 | `--output-format` | Output | `text` | Output format: `text`, `json`, `stream-json` |
 | `--input-format` | Input | `text` | Input format: `text`, `stream-json` |
 | `--verbose` | Output | `false` | Required for `stream-json` output |
 | `--include-partial-messages` | Streaming | `false` | Emit token-level chunks in stream-json |
+| `--include-hook-events` | Streaming | `false` | Include hook lifecycle events in stream-json output |
 | `--replay-user-messages` | Streaming | `false` | Echo user input back in stream for tracking |
-| `--model` | Model | `sonnet` | Model: `haiku`, `sonnet`, `opus` (or full ID) |
+| `--exclude-dynamic-system-prompt-sections` | Caching | `false` | Move per-machine sections (cwd, env, memory paths, git status) into the first user message instead of the system prompt; improves cross-user prompt-cache reuse |
+| `--model` | Model | `sonnet` | Model alias (`sonnet`, `opus`, `haiku`) or full ID (`claude-sonnet-4-6`) |
 | `--fallback-model` | Model | - | Auto-fallback model on overload |
-| `--max-budget-usd` | Budget | none | Spending limit in USD |
-| `--max-turns` | Budget | none | Maximum conversation turns |
+| `--max-budget-usd` | Budget | none | Spending limit in USD (per `--print` invocation) |
 | `--session-id` | Session | auto | Use a specific session UUID |
+| `-n, --name` | Session | - | Display name for this session (shown in `/resume` and terminal title) |
 | `--no-session-persistence` | Session | `false` | Ephemeral mode (no disk storage) |
 | `--continue, -c` | Session | - | Resume the most recent conversation |
 | `--resume, -r` | Session | - | Resume by session ID or name |
-| `--fork-session` | Session | `false` | Branch from an existing session |
-| `--permission-mode` | Permissions | `default` | Mode: `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan`, `auto` |
-| `--dangerously-skip-permissions` | Permissions | `false` | Equivalent to `bypassPermissions` |
+| `--fork-session` | Session | `false` | Branch from an existing session (use with `--resume` or `--continue`) |
+| `--from-pr` | Session | - | Resume a session linked to a GitHub PR by number/URL, or open interactive picker |
+| `-w, --worktree` | Workspace | - | Create a new git worktree for this session (optional name) |
+| `--tmux` | Workspace | - | Create tmux session for the worktree (requires `--worktree`); uses iTerm2 native panes when available, `--tmux=classic` for traditional |
+| `--remote-control-session-name-prefix` | Workspace | hostname | Prefix for auto-generated Remote Control session names |
+| `--add-dir` | Context | - | Add additional directory to context |
+| `--file` | Context | - | File resources to download at startup, format `file_id:relative_path` |
+| `--permission-mode` | Permissions | `default` | Mode: `default`, `acceptEdits`, `auto`, `bypassPermissions`, `dontAsk`, `plan` |
+| `--dangerously-skip-permissions` | Permissions | `false` | Equivalent to `bypassPermissions` (use only in trusted/sandboxed environments) |
+| `--allow-dangerously-skip-permissions` | Permissions | `false` | Enable bypass as an *option* without defaulting it on |
 | `--allowedTools` | Tools | - | Pattern-based tool allowlist (repeatable) |
 | `--disallowedTools` | Tools | - | Explicit tool denylist (repeatable) |
 | `--tools` | Tools | all | Restrict available tools (comma-separated, or `""` for none) |
@@ -37,10 +49,11 @@ Consolidated from 31 tested flag combinations.
 | `--append-system-prompt` | Prompt | - | ADD to the default system prompt |
 | `--system-prompt-file` | Prompt | - | Replace system prompt from file |
 | `--append-system-prompt-file` | Prompt | - | Append system prompt from file |
+| `--setting-sources` | Config | - | Comma-separated list of setting sources to load: `user`, `project`, `local` |
 | `--agent` | Persona | - | Select a named agent persona |
-| `--agents` | Persona | - | Define custom agents inline (JSON) |
+| `--agents` | Persona | - | Define custom agents inline as JSON object: `'{"reviewer": {"description": "...", "prompt": "..."}}'` |
 | `--json-schema` | Structured | - | JSON Schema for validated structured output |
-| `--add-dir` | Context | - | Add additional directory to context |
+| `--chrome` / `--no-chrome` | Integration | - | Enable/disable Claude in Chrome integration |
 
 ---
 
@@ -195,12 +208,12 @@ Event sequence:
 #### Combination 16: Cost Cap
 **Command:** `claude -p "Analyze this large file" --max-budget-usd 0.50`
 **Output:** Normal response if within budget. Truncated with `subtype: "error_max_budget_usd"` if exceeded.
-**Notes:** Check `total_cost_usd` in JSON output. Budget applies across all turns in a session invocation.
+**Notes:** Check `total_cost_usd` in JSON output. Budget applies across all turns in a session invocation. Pair with `--exclude-dynamic-system-prompt-sections` (Combination 17) for cross-user prompt-cache reuse on shared infrastructure.
 
-#### Combination 17: Turn Limit
-**Command:** `claude -p "Refactor this module" --max-turns 3`
-**Output:** Response limited to 3 agentic turns (tool uses count as turns).
-**Notes:** Prevents runaway tool loops. After the limit, Claude returns its best answer so far.
+#### Combination 17: Cross-User Prompt-Cache Reuse
+**Command:** `claude -p "Summarize this file" --exclude-dynamic-system-prompt-sections`
+**Output:** Same response, but per-machine sections (cwd, env info, memory paths, git status) move from the system prompt into the first user message.
+**Notes:** Improves prompt-cache reuse when the same prompt is run from multiple users or machines, since the system prompt is now stable across them. Only applies with the default system prompt (silently ignored with `--system-prompt`).
 
 ### Permissions
 
@@ -282,6 +295,43 @@ Event sequence:
 **Output:** Full duplex NDJSON. Send events on stdin, receive events on stdout.
 **Notes:** Input events follow the same schema as output. Enables building interactive wrappers around Claude. Stdin must provide properly formatted NDJSON events. Most advanced integration pattern.
 
+### Verified in v2.1.104
+
+#### Combination 32: Bare Mode for Clean CI
+**Command:** `claude -p --bare --tools "" --output-format json "Classify this issue: ..."`
+**Output:** Pure JSON response with no plugin state, no hooks, no auto-memory, no CLAUDE.md auto-discovery.
+**Notes:** `--bare` sets `CLAUDE_CODE_SIMPLE=1` and forces auth strictly to `ANTHROPIC_API_KEY` or `apiKeyHelper` (OAuth and keychain are never read). Designed for CI runners and other environments where you want zero ambient state. You must supply context explicitly: `--system-prompt[-file]`, `--append-system-prompt[-file]`, `--add-dir`, `--mcp-config`, `--settings`, `--agents`, `--plugin-dir`. Skills still resolve via `/skill-name`.
+
+#### Combination 33: Effort Level
+**Command:** `claude -p "Refactor this state machine for clarity" --effort high`
+**Output:** Response shaped by the effort budget. Accepted levels: `low`, `medium`, `high`, `max`.
+**Notes:** Higher effort levels allow more reasoning per turn at higher cost. `max` unlocks the most capable mode for the selected model. Pair with `--max-budget-usd` to put a ceiling on the resulting spend.
+
+#### Combination 34: Inline Custom Agents
+**Command:** `claude -p "Review the diff" --agents '{"reviewer":{"description":"Code review specialist","prompt":"You are a senior reviewer focused on security."}}'`
+**Output:** Response from the inline-defined agent.
+**Notes:** Pass a JSON object describing one or more named agents. Ephemeral — not persisted to `.claude/agents/`. Useful for one-off automation runs that need a specialized persona without setting up files. For persistent agents, use `--agent <name>` against an existing entry.
+
+#### Combination 35: Brief Mode (Agent → User Channel)
+**Command:** `claude -p "Implement feature X, ping me on questions" --brief`
+**Output:** Normal response, plus the agent gains the `SendUserMessage` tool which it can use to surface intermediate questions or status to the user during a long-running task.
+**Notes:** Designed for hands-off automation runs where the agent needs to occasionally check in. Usually paired with `--include-hook-events` and `--output-format stream-json --verbose` so the user-facing messages can be detected in the stream.
+
+#### Combination 36: Include Hook Events in Stream
+**Command:** `claude -p "Run tests, then format" --output-format stream-json --verbose --include-hook-events`
+**Output:** NDJSON stream now also includes hook lifecycle events (e.g., pre-tool-use, post-tool-use, stop hooks).
+**Notes:** Required when monitoring or relaying hook activity to a downstream UI. Without it, hook events are not surfaced in the stream even though they still execute server-side. Use sparingly — increases bandwidth.
+
+#### Combination 37: Resume from a GitHub PR
+**Command:** `claude -p "Address the review comments" --from-pr https://github.com/owner/repo/pull/123`
+**Output:** Response continuing the session previously associated with that PR.
+**Notes:** Accepts a PR number, full URL, or no value (opens an interactive picker with optional search term). The session lookup matches the PR-link metadata that `claude` writes when a session originates from PR work.
+
+#### Combination 38: Worktree + tmux Parallel Run
+**Command:** `claude -p "Try approach A" --worktree experiment-a --tmux`
+**Output:** A new git worktree at `.claude/worktrees/experiment-a/`, a tmux pane (or iTerm2 native pane) for that worktree, and Claude running inside it.
+**Notes:** `--worktree` requires `--tmux` if you want a managed pane; otherwise the worktree is created but you have to attach manually. Use `--tmux=classic` for traditional tmux instead of iTerm2 native panes. Critical for parallel-agent orchestration patterns. Without `--worktree`, `--tmux` is rejected.
+
 ---
 
 ## 4. Critical Discovery: stream-json Requires verbose
@@ -318,9 +368,13 @@ The `--verbose` flag is what activates the streaming pipeline. Without it, the s
 | `--output-format stream-json` | `--verbose` | Streaming pipeline needs verbose event generation |
 | `--input-format stream-json` | `--output-format stream-json` | Bidirectional mode requires streaming output |
 | `--input-format stream-json` | `--verbose` | Implied by stream-json output requirement |
-| `--include-partial-messages` | `--output-format stream-json --verbose` | Token deltas only meaningful in streaming |
+| `--include-partial-messages` | `--output-format=stream-json` | Per `--help`: token deltas only emitted in streaming output |
+| `--include-hook-events` | `--output-format=stream-json` | Per `--help`: hook events only emitted in streaming output |
 | `--replay-user-messages` | `--output-format stream-json --verbose` | User echoes only meaningful in streaming |
-| `--fork-session` | `--session-id` or `--resume` | Must specify which session to fork from |
+| `--fork-session` | `--session-id` or `--resume` or `--continue` | Must specify which session to fork from |
+| `--tmux` | `--worktree` | Tmux pane only created for worktree-scoped sessions |
+| `--max-budget-usd` | `--print` | Per `--help`: budget cap is print-mode only |
+| `--fallback-model` | `--print` | Per `--help`: fallback only triggers in print mode |
 
 ### Conflicts (flag A and flag B are mutually exclusive)
 
@@ -345,23 +399,21 @@ The `--verbose` flag is what activates the streaming pipeline. Without it, the s
 
 ## 6. Cost Reference
 
-Approximate costs per simple single-turn prompt (as of early 2025):
+Cost factors that hold across model versions:
 
-| Model | Typical Cost | Use Case |
-|-------|-------------|----------|
-| Haiku | ~$0.017-0.025 | High-volume, simple tasks, classification |
-| Sonnet | ~$0.12-0.15 | General purpose, code generation, analysis |
-| Opus | ~$0.30-0.60 | Complex reasoning, large refactors |
-
-Key cost factors:
-- System context overhead: ~35k tokens from built-in system prompt and tool definitions
-- Using `--system-prompt` (replace) can reduce context overhead vs the default prompt
-- Using `--tools ""` eliminates tool definition tokens from context
+- System context overhead: ~30–40k tokens from built-in system prompt and tool definitions
+- Using `--bare` skips most ambient context loading (hooks, plugin sync, CLAUDE.md auto-discovery, attribution); pair with `--tools ""` for the leanest possible invocation
+- Using `--system-prompt` (replace) can reduce context overhead vs the default prompt, but you also lose default tool instructions
+- Using `--tools ""` eliminates tool definition tokens from context entirely
 - Session continuation adds prior conversation tokens to input
 - Cache hits reduce cost: `cache_read_input_tokens` are cheaper than `input_tokens`
+- `--exclude-dynamic-system-prompt-sections` improves cache reuse across users/machines by stabilizing the system prompt
 
-Cost management:
-- Set `--max-budget-usd` to enforce hard caps per invocation
-- Track costs via `total_cost_usd` in JSON output format
-- Use `modelUsage` in JSON output for per-model breakdowns in fallback scenarios
-- Haiku for high-volume pipelines, Sonnet for balanced workloads, Opus for critical tasks
+Cost management knobs:
+- Set `--max-budget-usd` to enforce a hard cap per `--print` invocation
+- Track costs via `total_cost_usd` in `--output-format json` output
+- Use `modelUsage` in JSON output for per-model breakdowns in fallback scenarios (`--fallback-model`)
+- Use `--effort` to tune per-turn reasoning cost: `low`, `medium`, `high`, `max`
+- Pick model alias by workload: `haiku` for high-volume classification, `sonnet` for balanced workloads, `opus` for critical reasoning tasks. Aliases resolve to the latest version of each family.
+
+Live, per-token pricing changes too often to bake into this file. Always consult the current pricing page for actual per-prompt costs before sizing budgets.
