@@ -143,8 +143,15 @@ When writing cross-platform skills, always call out these differences:
 
 ### Permission Models
 - **Claude Code**: Granular (tool whitelist, permission modes, budget limits)
-- **Codex CLI**: Binary (sandboxed vs full-auto)
-- **Gemini CLI**: Binary (approve each vs auto-approve all with `-y`)
+- **Codex CLI**: In-CLI gating (`--sandbox`, `-a/--ask-for-approval`, `--full-auto`) PLUS true OS-level sandbox via `codex sandbox <os>`
+- **Gemini CLI**: Approval modes (`default`, `auto_edit`, `yolo`, `plan`) + Policy Engine
+
+See [../cross-platform/patterns/os-sandboxing.md](../cross-platform/patterns/os-sandboxing.md) for the in-CLI vs OS-level distinction.
+
+### Hook Portability
+- **Claude Code → Gemini CLI**: native one-shot via `gemini hooks migrate` (lossy; commit before running)
+- **Other directions**: manual translation only — no native command exists
+- **Best defense**: write hooks as standalone shell scripts that all three CLIs invoke via thin per-CLI wrappers. See [../cross-platform/patterns/hook-migration.md](../cross-platform/patterns/hook-migration.md) for the portable hook recipe.
 
 ## Testing Across CLIs
 
