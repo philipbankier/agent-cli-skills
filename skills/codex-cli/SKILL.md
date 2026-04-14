@@ -256,3 +256,4 @@ Load these files only when the decision router points you to them:
 | `reference/subcommands.md` | Top-level + per-subcommand reference (`sandbox`, `cloud`, `apply`, `fork`, `resume`, `features`, `app`, `app-server`, `debug`, `mcp`, `mcp-server`, `review`) | Using any `codex` subcommand other than `exec` |
 | `reference/json-output.md` | JSONL output shapes for `--json` | Parsing structured responses |
 | `reference/code-snippets.md` | Copy-paste code examples in Bash, Python, JS | Need a working starting point |
+| `reference/known-issues.md` | Verified gotchas (deprecated `--on-failure`, sandbox-vs-sandbox confusion, resume-vs-exec-resume distinction) | Debugging unexpected behavior or porting from older Codex versions |

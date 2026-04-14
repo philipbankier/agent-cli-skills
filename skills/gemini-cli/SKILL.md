@@ -262,3 +262,4 @@ Load these files only when the decision router points you to them:
 | `reference/subcommands.md` | Full subcommand tree for `gemini skills`, `gemini extensions`, `gemini hooks`, `gemini mcp` (v0.33.0 verified) | Managing skills, extensions, hooks, or MCP servers |
 | `reference/json-output.md` | JSON and stream-json output shapes | Parsing structured responses |
 | `reference/code-snippets.md` | Copy-paste code examples in Bash, Python, JS | Need a working starting point |
+| `reference/known-issues.md` | Verified gotchas (code removal bug #23497, deprecated flags, lossy `gemini hooks migrate`) | Debugging unexpected behavior — check here before assuming it's your code |

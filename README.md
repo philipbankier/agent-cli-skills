@@ -83,8 +83,19 @@ See [cross-platform/comparison.md](cross-platform/comparison.md) for the full fe
 - [Subagent Orchestration](cross-platform/patterns/subagent-orchestration.md) — worktrees, tmux, parallel agents across all three CLIs
 - [Cost Control](cross-platform/patterns/cost-control.md) — bound spend, optimize prompt caching, pick the right knobs
 - [OS Sandboxing](cross-platform/patterns/os-sandboxing.md) — in-CLI gating vs OS-level isolation (the only place `codex sandbox` is fully documented)
+- [Skill Installation](cross-platform/patterns/skill-installation.md) — packaging one skill that installs cleanly on all three CLIs
+- [Hook Migration](cross-platform/patterns/hook-migration.md) — `gemini hooks migrate` and manual port recipes
 - [API Proxy Pattern](cross-platform/patterns/api-proxy-pattern.md) — CLIProxyAPI, CC-Bridge, and when to use each
 - [LiteLLM Integration](cross-platform/patterns/litellm-integration.md) — Use CLI subscriptions as LiteLLM backends
+- [Ecosystem Map](cross-platform/ecosystem.md) — how this repo relates to anthropics/skills, obra/superpowers, awesome-claude-code, CLIProxyAPI, and the rest of the CLI agent landscape
+
+### Verified Known Issues
+
+Per-CLI lists of confirmed-real GitHub issues with reproducible workarounds. Every entry is verified via `gh api` against the upstream issue tracker.
+
+- [Claude Code known issues](skills/claude-code/reference/known-issues.md)
+- [Codex CLI known issues](skills/codex-cli/reference/known-issues.md)
+- [Gemini CLI known issues](skills/gemini-cli/reference/known-issues.md)
 
 ### Skill Authoring
 

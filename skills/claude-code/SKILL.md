@@ -311,3 +311,4 @@ Load these files only when the decision router points you to them:
 | `reference/streaming-events.md` | SSE and stream-json event type documentation | Implementing real-time streaming consumers |
 | `reference/json-schemas.md` | JSON output shapes and schema validation patterns | Parsing responses or defining structured output |
 | `reference/code-snippets.md` | Copy-paste code examples in Bash, Python, Go, JS | Need a working starting point in a specific language |
+| `reference/known-issues.md` | Verified GitHub-issue-linked gotchas (cache TTL, resume invalidation, Windows MCP bug, context limit early trigger, permission cascade) | Debugging unexpected behavior — check here before assuming it's your code |
