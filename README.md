@@ -80,6 +80,9 @@ See [cross-platform/comparison.md](cross-platform/comparison.md) for the full fe
 - [Multi-Agent Patterns](cross-platform/patterns/parallel-agents.md) — orchestration across all 3
 - [CI/CD Templates](cross-platform/patterns/ci-cd-matrix.md) — GitHub Actions for each CLI
 - [Structured Output Patterns](cross-platform/patterns/structured-output.md) — JSON schema per CLI
+- [Subagent Orchestration](cross-platform/patterns/subagent-orchestration.md) — worktrees, tmux, parallel agents across all three CLIs
+- [Cost Control](cross-platform/patterns/cost-control.md) — bound spend, optimize prompt caching, pick the right knobs
+- [OS Sandboxing](cross-platform/patterns/os-sandboxing.md) — in-CLI gating vs OS-level isolation (the only place `codex sandbox` is fully documented)
 - [API Proxy Pattern](cross-platform/patterns/api-proxy-pattern.md) — CLIProxyAPI, CC-Bridge, and when to use each
 - [LiteLLM Integration](cross-platform/patterns/litellm-integration.md) — Use CLI subscriptions as LiteLLM backends
 
