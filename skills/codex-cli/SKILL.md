@@ -21,7 +21,7 @@ echo "Your prompt" | codex exec -             # pipe from stdin
 ```
 
 **Key differentiators from other CLI agents:**
-- **Session resume** — `codex exec resume --last` continues where you left off across invocations
+- **Session resume** — both `codex resume --last` (interactive TUI) and `codex exec resume --last` (non-interactive automation) continue where you left off across invocations
 - **Output to file** — `-o output.txt` writes the final assistant message to a file
 - **AGENTS.md** — Configuration file shared with Copilot and Cursor (write once, use everywhere)
 - **Sandbox modes** — Granular control: read-only, workspace-write, or full-access
@@ -179,11 +179,16 @@ Files concatenate from root downward. This is shared with Copilot and Cursor —
 
 ### Session Resume
 
-Codex persists sessions to disk by default. Resume them with:
+Codex persists sessions to disk by default. Two top-level resume commands exist — pick the one that matches your context:
 
 ```bash
-codex exec resume --last          # Continue the most recent session
-codex exec resume --all           # List all sessions, pick one
+# Interactive (launches TUI):
+codex resume --last                # Continue the most recent session
+codex resume                       # Picker for all sessions in this directory
+
+# Non-interactive (exec mode, for scripts):
+codex exec resume --last "follow-up prompt"
+codex exec resume <session-id> "follow-up prompt"
 ```
 
 Use `--ephemeral` when you want stateless, fire-and-forget invocations.
@@ -206,8 +211,13 @@ Use `--ephemeral` when you want stateless, fire-and-forget invocations.
 5. **AGENTS.md has a size limit** — Combined instructions cap at `project_doc_max_bytes`
    (32 KiB default). If your AGENTS.md chain exceeds this, later files silently get truncated.
 
-6. **Session resume is directory-scoped** — `codex exec resume --last` finds the most recent
-   session in the current directory. Changing directories changes which session is "last".
+6. **Session resume is directory-scoped** — both `codex resume --last` and `codex exec resume --last`
+   find the most recent session in the *current* directory. Changing directories changes which
+   session is "last". This catches people who `cd` between steps in a workflow.
+
+8. **`resume` and `exec resume` are different commands** — `codex resume` launches the
+   interactive TUI on a previous session. `codex exec resume` continues a session in
+   non-interactive exec mode. Use the one that matches your context; they are not aliases.
 
 7. **API key auth is separate from ChatGPT auth** — API key billing goes to your OpenAI Platform
    account, not your ChatGPT subscription. They're different billing systems.

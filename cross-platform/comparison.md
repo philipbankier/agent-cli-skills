@@ -39,8 +39,9 @@ Side-by-side reference for Claude Code, Codex CLI, and Gemini CLI non-interactiv
 |---|---|---|---|
 | **Stateless** | `--no-session-persistence` | `--ephemeral` | Default |
 | **Named session** | `--session-id <id>` | — | — |
-| **Resume last** | `--continue` | `codex exec resume --last` | `-r` / `--resume` |
-| **Resume all** | — | `codex exec resume --all` | `--list-sessions` |
+| **Resume last (interactive)** | `--continue` | `codex resume --last` | `-r latest` |
+| **Resume last (non-interactive)** | `claude -p --resume <id>` | `codex exec resume --last` | `-r <index>` |
+| **List/pick sessions** | `--resume` (picker) | `codex resume` (picker) | `--list-sessions` |
 
 ## Model Selection
 
@@ -110,7 +111,7 @@ Side-by-side reference for Claude Code, Codex CLI, and Gemini CLI non-interactiv
 ### Codex CLI
 - Full auto requires multiple flags: `--full-auto` + `--dangerously-bypass-approvals-and-sandbox` + trusted workspace
 - `--json` outputs JSONL with event types: `thread.started`, `turn.started`, `item.completed`, `turn.completed`
-- Session resume is a subcommand of exec: `codex exec resume --last`
+- Session resume has two forms: `codex resume --last` (interactive TUI) and `codex exec resume --last` (non-interactive exec mode). They are different commands, not aliases.
 
 ### Gemini CLI
 - A single prompt can trigger multiple API requests (affects quota)

@@ -11,15 +11,15 @@ Teach Claude Code, Codex CLI, and Gemini CLI to automate themselves — non-inte
 
 ### Verified Against
 
-Flags, JSON output shapes, and examples have been tested against these versions:
+Flags, JSON output shapes, and examples have been tested against these versions. **Last verified: 2026-04-14.**
 
-| CLI | Version | Status |
-|-----|---------|--------|
-| Claude Code | v2.1.81 | Fully tested — flags verified, examples run with captured output |
-| Codex CLI | v0.114.0 | Fully tested — flags verified, examples run with captured output |
-| Gemini CLI | v0.33.0 | Community-contributed — flags checked against `--help`, examples not yet run |
+| CLI | Tested against | Latest upstream | Status |
+|-----|----------------|-----------------|--------|
+| Claude Code | v2.1.104 | v2.1.104 | Fully tested — flags verified live, examples run with captured output |
+| Codex CLI | v0.114.0 | v0.120.0 | Local install verified live; gap to upstream tracked in this commit batch |
+| Gemini CLI | v0.33.0 | v0.37.1 | Subcommand APIs verified live; example scripts community-contributed, not run end-to-end |
 
-> **Gemini CLI contributors welcome!** The Gemini skill was written by cross-referencing `gemini --help` output, but the examples have not been run end-to-end. If you have Gemini CLI configured, please run the examples and submit a PR with corrections and sample output.
+> **Gemini CLI example contributors welcome!** Subcommand surface (`gemini skills`, `gemini extensions`, `gemini hooks`) is now verified, but the multi-agent example scripts have not been run end-to-end. If you have Gemini CLI configured, please run them and submit a PR with corrections and sample output.
 
 CLI interfaces change between versions. If you find a discrepancy, [open an issue](../../issues/new/choose) with your CLI version.
 

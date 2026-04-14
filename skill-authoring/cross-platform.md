@@ -138,7 +138,7 @@ When writing cross-platform skills, always call out these differences:
 
 ### Session Behavior
 - **Claude Code**: Persists sessions by default — add `--no-session-persistence` for stateless
-- **Codex CLI**: Has built-in session resume with `codex exec resume --last`
+- **Codex CLI**: Two-form session resume — `codex resume --last` for interactive TUI, `codex exec resume --last` for non-interactive automation
 - **Gemini CLI**: Stateless by default; sessions available with `-r`/`--resume` and `--list-sessions`
 
 ### Permission Models
