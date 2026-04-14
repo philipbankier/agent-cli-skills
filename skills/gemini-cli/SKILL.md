@@ -5,7 +5,7 @@ description: Automate Google's Gemini CLI with non-interactive headless mode, ex
 
 # Gemini CLI Automation
 
-> **Community-contributed** — This skill was written by cross-referencing `gemini --help` (v0.33.0) and public documentation, but the examples have not been run end-to-end. Flag names and behavior may differ from what's documented here. If you find inaccuracies, please [open an issue](../../../../issues/new/choose) or submit a PR.
+> **Verification status (2026-04-14):** Subcommand surface (`gemini --help`, `gemini skills --help`, `gemini extensions --help`, `gemini hooks --help`) verified live against **Gemini CLI v0.33.0** — see [reference/subcommands.md](reference/subcommands.md). Multi-agent example scripts under `examples/` are still community-contributed and have **not** been run end-to-end. Upstream is currently v0.37.1; the gap is tracked in this commit batch. If you have Gemini CLI configured, please run the example scripts and submit a PR with corrections.
 
 ## Overview
 
@@ -70,6 +70,12 @@ Output shapes for `--output-format json` and `--output-format stream-json`
 ### "Give me copy-paste code examples"
 -> Read [reference/code-snippets.md](reference/code-snippets.md)
 Ready-to-run patterns for common integration scenarios
+
+### "I want to manage skills, extensions, hooks, or migrate hooks from Claude Code"
+-> Read [reference/subcommands.md](reference/subcommands.md)
+Full subcommand tree for `gemini skills`, `gemini extensions`, `gemini hooks` (including
+the cross-CLI `gemini hooks migrate` command), and `gemini mcp`. Verified live against
+v0.33.0.
 
 ---
 
@@ -220,6 +226,27 @@ Manage in interactive mode:
 7. **Extensions can include MCP servers** — Unlike Claude Code and Codex CLI where MCP is
    configured separately, Gemini bundles MCP servers into extensions for easier distribution.
 
+8. **`gemini hooks migrate` is a one-shot port from Claude Code** — `gemini hooks migrate`
+   translates Claude Code hook configurations into Gemini's hooks system in place. This is
+   the **only** native cross-CLI hook port command in any of the three CLIs. Run it from a
+   project that has Claude hooks configured, commit before running, and review the diff —
+   the translation isn't 100% lossless across platforms (especially for hooks that depend on
+   Claude-specific event types).
+
+9. **`gemini skills install <git-url>` is unique** — Gemini ships a native `skills install`
+   command that pulls skills directly from a git URL or local path. Claude Code requires a
+   marketplace registration (`claude plugin install owner/plugin@marketplace`); Codex CLI has
+   no first-party skill installer. If you publish a portable skill, Gemini gives you the
+   shortest install path.
+
+10. **`extensions validate <path>` and `extensions new <path> [template]`** — Gemini ships
+    boilerplate scaffolding (`new`) and structural validation (`validate`) for extensions
+    out of the box. Use them as a pre-publish CI step.
+
+11. **`-r/--resume` accepts `latest` or numeric index** — Unlike Claude Code's UUID-or-name
+    style, Gemini sessions are addressable by numeric index (`gemini -r 5`) or the literal
+    string `latest`. Use `--list-sessions` to see indices.
+
 ---
 
 ## File Map
@@ -231,6 +258,7 @@ Load these files only when the decision router points you to them:
 | `guides/automate-cli.md` | End-to-end guide for CLI automation and scripting | Building shell scripts, CI/CD pipelines, batch jobs |
 | `guides/extensions.md` | Gemini extensions system guide | Building or installing extensions |
 | `guides/gemini-md.md` | GEMINI.md configuration patterns | Configuring project or team-wide instructions |
-| `reference/cli-flags.md` | Complete flag reference for headless mode | Need exact flag syntax |
+| `reference/cli-flags.md` | Complete top-level flag reference for headless mode | Need exact flag syntax for `gemini -p` |
+| `reference/subcommands.md` | Full subcommand tree for `gemini skills`, `gemini extensions`, `gemini hooks`, `gemini mcp` (v0.33.0 verified) | Managing skills, extensions, hooks, or MCP servers |
 | `reference/json-output.md` | JSON and stream-json output shapes | Parsing structured responses |
 | `reference/code-snippets.md` | Copy-paste code examples in Bash, Python, JS | Need a working starting point |
