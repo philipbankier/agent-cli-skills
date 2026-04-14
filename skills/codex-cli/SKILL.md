@@ -70,6 +70,10 @@ Output shapes for `--json` (JSONL event stream)
 -> Read [reference/code-snippets.md](reference/code-snippets.md)
 Ready-to-run patterns for common integration scenarios
 
+### "I want to use codex sandbox / codex cloud / codex apply / codex fork / codex features / codex app / codex resume"
+-> Read [reference/subcommands.md](reference/subcommands.md)
+Full subcommand tree with verified `--help` output for everything that isn't `codex exec`
+
 ---
 
 ## Quick Start Recipes
@@ -222,6 +226,21 @@ Use `--ephemeral` when you want stateless, fire-and-forget invocations.
 7. **API key auth is separate from ChatGPT auth** — API key billing goes to your OpenAI Platform
    account, not your ChatGPT subscription. They're different billing systems.
 
+9. **`--enable`/`--disable` toggle feature flags per-invocation, not permanently** —
+   `codex exec --enable my-feature ...` is equivalent to `-c features.my-feature=true` for that
+   one run. To persist a flag across runs, use `codex features enable <name>` (writes to
+   `~/.codex/config.toml`). `codex features list` shows current state and lifecycle stage.
+
+10. **`codex sandbox <os>` is OS-level, not CLI permission gating** — The `codex sandbox`
+    subcommand wraps an arbitrary command in macOS Seatbelt / Linux Landlock+seccomp /
+    Windows restricted token. This is *separate* from `codex exec --sandbox {read-only|...}`,
+    which is in-CLI permission policy. Use `codex sandbox` when you want OS-level isolation
+    around any command (not just an agent run).
+
+11. **`codex cloud apply` and `codex apply` do similar things** — Both materialize a Codex-
+    produced diff onto your local working tree via `git apply`. `codex apply <task-id>` is the
+    direct top-level form; `codex cloud apply <task-id>` is the cloud-task-aware form.
+
 ---
 
 ## File Map
@@ -233,6 +252,7 @@ Load these files only when the decision router points you to them:
 | `guides/automate-cli.md` | End-to-end guide for CLI automation and scripting | Building shell scripts, CI/CD pipelines, batch jobs |
 | `guides/session-management.md` | Session resume, multi-step workflows, output capture | Building multi-turn automated workflows |
 | `guides/agents-md.md` | AGENTS.md configuration patterns and hierarchy | Configuring project or team-wide instructions |
-| `reference/exec-mode-flags.md` | Complete flag reference for codex exec | Need exact flag syntax or interactions |
+| `reference/exec-mode-flags.md` | Complete flag reference for `codex exec` (v0.114.0 verified) | Need exact flag syntax or interactions for non-interactive mode |
+| `reference/subcommands.md` | Top-level + per-subcommand reference (`sandbox`, `cloud`, `apply`, `fork`, `resume`, `features`, `app`, `app-server`, `debug`, `mcp`, `mcp-server`, `review`) | Using any `codex` subcommand other than `exec` |
 | `reference/json-output.md` | JSONL output shapes for `--json` | Parsing structured responses |
 | `reference/code-snippets.md` | Copy-paste code examples in Bash, Python, JS | Need a working starting point |
