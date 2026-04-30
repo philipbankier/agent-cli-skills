@@ -241,6 +241,20 @@ Use `--ephemeral` when you want stateless, fire-and-forget invocations.
     produced diff onto your local working tree via `git apply`. `codex apply <task-id>` is the
     direct top-level form; `codex cloud apply <task-id>` is the cloud-task-aware form.
 
+12. **Default bwrap sandbox breaks on many Linux servers** — On VPS hosts, homelab machines,
+    and any environment without `sys_admin` capability, `bwrap` fails with `Failed RTM_NEWADDR:
+    Operation not permitted`. Use `--dangerously-bypass-approvals-and-sandbox` to disable it.
+    See [reference/known-issues.md](reference/known-issues.md) for the full writeup.
+
+13. **Old CLI versions silently hang on newer models** — CLI v0.27.0 and earlier either error
+    with `400 Bad Request` or hang indefinitely when using `-m gpt-5.5`. Upgrade to
+    `0.125.0+` and always smoke-test before long runs.
+    See [reference/known-issues.md](reference/known-issues.md) for the full writeup.
+
+14. **Codex OAuth tokens don't work with the raw OpenAI Python SDK** — The tokens in
+    `~/.codex/auth.json` are scoped to the Codex CLI application. For programmatic Python
+    access, use `codex exec` with `--output-last-message` or a separate `OPENAI_API_KEY`.
+
 ---
 
 ## File Map

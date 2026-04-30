@@ -198,3 +198,44 @@ timeout 120 codex exec "Review the entire codebase" --ephemeral || {
 - **Use `-o` for downstream processing** — cleaner than parsing stdout
 - **Prefer API key auth for CI/CD** — `OPENAI_API_KEY` is more reliable than device-code login in automated environments
 - **Pin your Codex CLI version** — `npm install -g @openai/codex@0.20` prevents breaking changes in CI
+
+## Linux Server Quickstart
+
+If you're running Codex CLI on a Linux server (VPS, homelab, etc.) where the default bwrap sandbox is broken, use this pattern:
+
+```bash
+# 1. Install/upgrade to latest (required for gpt-5.5 and newer models)
+npm install -g @openai/codex    # use nvm's npm if installed via nvm
+
+# 2. Verify version (need 0.125.0+ for gpt-5.5)
+codex --version
+
+# 3. Quick smoke test
+echo "Say hello" | codex exec -m gpt-5.5 \
+  --dangerously-bypass-approvals-and-sandbox \
+  --skip-git-repo-check -
+
+# 4. Real usage pattern for long prompts
+cat /tmp/my-prompt.md | codex exec -m gpt-5.5 \
+  --dangerously-bypass-approvals-and-sandbox \
+  --skip-git-repo-check \
+  --output-last-message=/tmp/output.md -
+
+# 5. With timeout protection
+timeout 600 bash -c 'cat /tmp/my-prompt.md | codex exec -m gpt-5.5 \
+  --dangerously-bypass-approvals-and-sandbox \
+  --skip-git-repo-check \
+  --output-last-message=/tmp/output.md -'
+```
+
+**Why these flags:**
+
+| Flag | Reason |
+|------|--------|
+| `--dangerously-bypass-approvals-and-sandbox` | Disables bwrap sandbox, which fails on many Linux servers with namespace permission errors |
+| `--skip-git-repo-check` | Lets you run from any directory, not just git repos |
+| `-` (stdin) | Pipes prompt from stdin — avoids shell escaping and length issues with long prompts |
+| `--output-last-message=<file>` | Captures final response to file; useful for downstream processing |
+| `timeout 600` | Prevents runaway processes; gpt-5.5 deep reasoning can take minutes |
+
+See [reference/known-issues.md](reference/known-issues.md) for detailed breakdowns of each gotcha.
