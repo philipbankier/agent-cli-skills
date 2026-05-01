@@ -54,6 +54,121 @@ A curated list of confirmed-real Codex CLI issues with reproducible workarounds.
 
 ---
 
+## Default sandbox (bwrap) fails on many Linux servers
+
+- **Source:** First-hand reproduction on Ubuntu server with Codex CLI v0.27.0 and v0.125.0 (2026-04-29)
+- **Severity:** High — exec mode silently hangs or errors with no useful output
+
+**What happens:** On Linux servers where `bwrap` (bubblewrap) cannot create network namespaces (common on VPS hosts, homelab machines, and environments without `sys_admin` capability), Codex exec commands either:
+
+- Fail immediately with: `bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted`
+- Hang indefinitely with no stdout (the agent tries to execute shell commands in the broken sandbox, they all fail, and it stalls waiting for output)
+
+**Workaround:** Use `--dangerously-bypass-approvals-and-sandbox` to disable the bwrap sandbox entirely:
+
+```bash
+echo "Say hello" | codex exec -m gpt-5.5 \
+  --dangerously-bypass-approvals-and-sandbox \
+  --skip-git-repo-check -
+```
+
+This is safe when:
+- The machine is a private server you control
+- You're running known prompts
+- You're not processing untrusted input
+
+**Key flags that fix this:**
+
+| Flag | Why |
+|------|-----|
+| `--dangerously-bypass-approvals-and-sandbox` | Disables bwrap, which is broken on many Linux servers |
+| `--skip-git-repo-check` | Allows running outside a git repo (common for one-off automation) |
+| `-` (stdin pipe) | Reads prompt from stdin — avoids shell escaping issues with long prompts |
+| `--output-last-message=<file>` | Captures output to file in addition to stdout |
+
+---
+
+## Old CLI versions silently fail on newer models (gpt-5.5, etc.)
+
+- **Source:** First-hand reproduction: Codex CLI v0.27.0 failed with `400 Bad Request: "The 'gpt-5.5' model requires a newer version of Codex"` (2026-04-29)
+- **Severity:** High — older CLI versions either error with unclear messages or silently hang
+
+**What happens:** When using `-m gpt-5.5` (or any model newer than what your CLI version supports):
+
+- v0.27.0 and earlier: silently hangs for 10+ minutes with no output, or returns `400 Bad Request` after exhausting retries
+- The error message is clear in v0.125.0+ but invisible in older versions
+
+**Workaround:** Always check your CLI version and upgrade before using new models:
+
+```bash
+# Check version
+codex --version
+
+# Upgrade (use nvm's npm if globally installed via nvm)
+npm install -g @openai/codex
+
+# Verify
+codex --version   # Should be 0.125.0+ for gpt-5.5
+```
+
+**Quick test before long runs:**
+
+```bash
+echo "Say hello" | codex exec -m gpt-5.5 \
+  --dangerously-bypass-approvals-and-sandbox \
+  --skip-git-repo-check -
+```
+
+If this returns "Hello" within ~10 seconds, your setup works. If it hangs or errors, fix CLI version or auth first.
+
+---
+
+## Codex OAuth token cannot be used with raw OpenAI Python SDK
+
+- **Source:** First-hand reproduction (2026-04-29)
+- **Severity:** Medium — causes confusion when trying to build custom tooling around Codex
+
+**What happens:** The OAuth tokens stored in `~/.codex/auth.json` are scoped to the Codex CLI application. Using the `access_token` as an `OPENAI_API_KEY` with the `openai` Python SDK produces:
+
+- `403 Forbidden: You have insufficient permissions for this operation. Missing scopes: api.model.read`
+- `500 Internal Server Error` on chat completion requests
+
+**Workaround:** Use Codex CLI itself (`codex exec`) as the interface. If you need programmatic access:
+
+1. Use `codex exec` with `--output-last-message` and parse the file
+2. Or use a separate OpenAI API key (`OPENAI_API_KEY` env var) for the Python SDK — this is a different billing system from ChatGPT/Codex OAuth
+
+---
+
+## Long prompts via CLI argument can hang — pipe via stdin instead
+
+- **Source:** First-hand reproduction (2026-04-29)
+- **Severity:** Medium — prompts over ~4K characters passed as CLI arguments may behave differently than piped stdin
+
+**What happens:** Passing very long prompts as a direct argument to `codex exec` can cause:
+
+- Shell argument length limits
+- Different buffering behavior vs stdin pipe
+- Hanging with no output in some configurations
+
+**Workaround:** Pipe long prompts via stdin:
+
+```bash
+# For prompts in a file
+cat /tmp/my-prompt.md | codex exec -m gpt-5.5 \
+  --dangerously-bypass-approvals-and-sandbox \
+  --skip-git-repo-check \
+  --output-last-message=/tmp/output.md -
+
+# With timeout protection
+timeout 600 bash -c 'cat /tmp/my-prompt.md | codex exec -m gpt-5.5 \
+  --dangerously-bypass-approvals-and-sandbox \
+  --skip-git-repo-check \
+  --output-last-message=/tmp/output.md -'
+```
+
+---
+
 ## TODO: research leads from community discussion
 
 These items came from community research and need first-hand reproduction before being documented in detail:
