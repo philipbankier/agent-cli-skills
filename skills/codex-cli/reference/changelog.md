@@ -1,12 +1,30 @@
 > Part of the [codex-cli skill](../SKILL.md).
 
-# Codex CLI Upstream Changelog (v0.115.0 → v0.120.0)
+# Codex CLI Upstream Changelog (historical v0.115.0 -> v0.120.0)
 
-This file captures changes shipped between our locally-tested install (v0.114.0) and the current upstream release (v0.120.0). Every entry below is summarized from the **official GitHub release notes** for `openai/codex`. The release notes themselves are the source of truth — when there's any doubt about behavior, follow the link to the upstream PR.
+This file captures an older release-note bridge from the original locally-tested
+install (v0.114.0) to v0.120.0. The skill was refreshed against local
+**Codex CLI v0.130.0** on 2026-05-17; current flag behavior is documented in
+[`exec-mode-flags.md`](exec-mode-flags.md), [`json-output.md`](json-output.md),
+and [`known-issues.md`](known-issues.md).
 
-> **Verification status:** Local install is v0.114.0. Entries below are documented from release notes, not from live `--help` runs against the new version. Tag entries with `(verify after upgrade)` apply when you upgrade to v0.115+ — re-run `codex --help` and `codex <subcommand> --help` to confirm.
+> **Verification status:** Historical entries below are summarized from release
+> notes, not revalidated line-by-line. For current local behavior, use the
+> 2026-05-17 audit and reference files.
 
 Source: `gh api repos/openai/codex/releases/tags/rust-v<version>` on 2026-04-14.
+
+## v0.130.0 (2026-05-08)
+
+[Release notes](https://github.com/openai/codex/releases/tag/rust-v0.130.0)
+
+Local 2026-05-17 verification covered the behavior this repo documents:
+
+- `codex exec --full-auto` is deprecated compatibility; use `--sandbox workspace-write`.
+- Piped stdin plus prompt works without a trailing `-`.
+- JSONL final messages use `item.type == "agent_message"` and `item.text`.
+- `-o` writes the final message file and still prints the final message to stdout without `--json`.
+- `codex exec --sandbox read-only resume --last ...` is the verified parent-option placement.
 
 ---
 

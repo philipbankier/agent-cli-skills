@@ -43,6 +43,15 @@ codex exec resume --all
 # Resume is directory-scoped — the "last" session depends on your current directory
 ```
 
+When adding parent exec options, put them before `resume`:
+
+```bash
+codex exec --sandbox read-only resume --last "Continue from where we left off"
+```
+
+This matters because `codex exec resume --last "..." --sandbox read-only` failed
+locally on v0.130 with `unexpected argument '--sandbox' found`.
+
 ### Combining Resume with Output Capture
 
 ```bash
@@ -94,7 +103,7 @@ codex exec "Read $FILE and identify code smells, complexity issues, and improvem
 echo "Step 2: Refactoring..."
 codex exec resume --last \
   "Now implement the top improvements you identified. Make the changes directly to the file." \
-  --full-auto
+  --sandbox workspace-write
 
 echo "Step 3: Verifying..."
 codex exec resume --last \
@@ -124,4 +133,6 @@ codex exec resume --last \
 - **Use resume for related steps, ephemeral for independent tasks** — Don't waste context on unrelated queries
 - **Capture the final step to file** — Use `-o` on the last step to get a clean output artifact
 - **Remember directory scoping** — If you `cd` between steps, `--last` finds a different session
+- **Do not rely on `--ephemeral resume` for privacy-sensitive flows yet** — upstream issue #20084 reports resumed turns can persist
+- **Use parent option placement** — write `codex exec --sandbox read-only resume --last "..."`, not `codex exec resume --last "..." --sandbox read-only`
 - **Clean up old sessions periodically** — Sessions accumulate on disk; purge when no longer needed

@@ -1,7 +1,7 @@
 # Cost Control Across Claude Code, Codex CLI, and Gemini CLI
 
 How to bound spend, optimize prompt cache reuse, and pick the right knobs for CI workloads.
-Verified against Claude Code v2.1.104, Codex CLI v0.114.0, Gemini CLI v0.33.0 on 2026-04-14.
+Verified against Claude Code v2.1.104 and Gemini CLI v0.33.0 on 2026-04-14; Codex CLI references refreshed against v0.130.0 on 2026-05-17.
 
 ## Knob Inventory by CLI
 

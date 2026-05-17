@@ -1,7 +1,7 @@
 # Subagent Orchestration: Worktrees, Tmux, Parallel Agents
 
 How to spawn, isolate, and coordinate multiple AI agents working in parallel — across Claude Code, Codex CLI, and Gemini CLI.
-Verified against Claude Code v2.1.104, Codex CLI v0.114.0, Gemini CLI v0.33.0 on 2026-04-14.
+Verified against Claude Code v2.1.104 and Gemini CLI v0.33.0 on 2026-04-14; Codex CLI references refreshed against v0.130.0 on 2026-05-17.
 
 ## When to Reach For This Pattern
 
@@ -127,9 +127,9 @@ done
 When you spawn parallel agents that run shell commands, isolating each one in an OS sandbox prevents one agent's misstep from corrupting the others.
 
 ```bash
-codex sandbox macos -- codex exec --full-auto "Run the test suite"
-codex sandbox linux -- codex exec --full-auto "Run the test suite"
-codex sandbox windows -- codex exec --full-auto "Run the test suite"
+codex sandbox macos -- codex exec --sandbox workspace-write "Run the test suite"
+codex sandbox linux -- codex exec --sandbox workspace-write "Run the test suite"
+codex sandbox windows -- codex exec --sandbox workspace-write "Run the test suite"
 ```
 
 See [os-sandboxing.md](os-sandboxing.md) for the full sandboxing comparison.

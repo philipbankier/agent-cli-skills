@@ -1,7 +1,7 @@
 # Cross-CLI Hook Migration
 
 How to port hooks between Claude Code, Codex CLI, and Gemini CLI — and how to write hooks that are portable from day one.
-Verified against Claude Code v2.1.104, Codex CLI v0.114.0, Gemini CLI v0.33.0 on 2026-04-14.
+Verified against Claude Code v2.1.104 and Gemini CLI v0.33.0 on 2026-04-14; Codex CLI references refreshed against v0.130.0 on 2026-05-17.
 
 ## The Surprising State of the Art
 
@@ -75,7 +75,7 @@ Codex CLI equivalent (wrapper shell script):
 set -euo pipefail
 
 # Run the Codex agent
-codex exec --full-auto "$@"
+codex exec --sandbox workspace-write "$@"
 
 # Equivalent of the Stop hook: always run after the agent completes
 npm run format
@@ -92,7 +92,7 @@ Codex's `AGENTS.md` instructions become Claude's `CLAUDE.md` instructions. Most 
 |-------------------|----------------------|
 | `AGENTS.md` always-on instructions | `CLAUDE.md` always-on instructions |
 | Custom slash command in config.toml | `.claude/commands/<name>.md` slash command |
-| `codex exec --full-auto` wrapper script | `.claude/hooks/` real hook with `events` array |
+| `codex exec --sandbox workspace-write` wrapper script | `.claude/hooks/` real hook with `events` array |
 | MCP server providing a tool | `claude mcp add` to register the same MCP server in Claude Code |
 
 The Claude Code hook system is the more expressive of the two — anything Codex can do via wrapper scripts, Claude can do as a real hook.

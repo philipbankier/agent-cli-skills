@@ -1,13 +1,14 @@
 # The Agent CLI Ecosystem
 
 A curated map of the surrounding ecosystem and where this repo fits.
-Star counts and `pushed_at` dates verified via `gh api` on 2026-04-14.
+Star counts and `pushed_at` dates are volatile. Treat counts below as dated
+snapshots or placeholders, not live metrics.
 
 ## How to Read This
 
 The CLI agent ecosystem is fragmented across many independent projects. Some are official; some are community-curated lists; some are skill marketplaces; some are runtime infrastructure. This page sorts them by **what they do** and explains where `agent-cli-skills` sits relative to each.
 
-Our position: **verified, cross-CLI documentation and patterns.** We are not a marketplace, we are not a runtime, and we are not an "awesome list" trying to index every project. We explain how the CLIs work, what flags do what, where the gotchas are, and how to write code that works across all three. Every claim is verified against live `--help` output or an authoritative source.
+Our position: **verified, cross-CLI documentation and patterns.** We are not a marketplace, we are not a runtime, and we are not an "awesome list" trying to index every project. We explain how the CLIs work, what flags do what, where the gotchas are, and how to write code that works across Claude Code, Codex CLI, Gemini CLI, and Grok Build. Every claim is verified against live `--help` output or an authoritative source.
 
 ## Official Repositories
 
@@ -16,6 +17,7 @@ Our position: **verified, cross-CLI documentation and patterns.** We are not a m
 | [anthropics/skills](https://github.com/anthropics/skills) | ~116k | The official Agent Skills repo from Anthropic. Defines the `SKILL.md` frontmatter spec and ships canonical examples. | We document how `SKILL.md` skills work in practice across all three CLIs, including the platform-specific differences in discovery and packaging. |
 | [openai/codex](https://github.com/openai/codex) | (varies) | Official Codex CLI source. Authoritative for `codex` flags, releases, issues. | We document the *cross-CLI* equivalences for Codex flags and call out behaviors that aren't in `--help`. |
 | [google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) | (varies) | Official Gemini CLI source. Authoritative for `gemini` flags, releases, issues. | We document the cross-CLI equivalences and surface features that aren't well-known (e.g., `gemini hooks migrate`). |
+| [xAI Grok Build docs](https://docs.x.ai/build/overview) | n/a | Official Grok Build documentation. Authoritative for `grok` headless mode, ACP, and Claude-compatible skills/plugins. | We document local CLI behavior, caveats, and cross-CLI equivalences that are not fully covered by the docs. |
 | [modelcontextprotocol](https://github.com/modelcontextprotocol) | (varies) | The official MCP spec — the protocol layer all three CLIs use for tool integration. | We document the practical cross-CLI usage of MCP through each CLI's `mcp` subcommand. |
 
 ## Curation & Discovery (Awesome Lists)
@@ -50,8 +52,9 @@ We document the "when to use which" decision in [`patterns/api-proxy-pattern.md`
 These are platform-specific. They live inside the marketplace systems each CLI provides:
 
 - **Claude Code**: official marketplace via `claude plugin marketplace`, plus community-curated alternates listed in awesome-claude-code
-- **Codex CLI**: no first-party plugin system; capabilities flow through MCP server registration
+- **Codex CLI**: first-party plugin command exists, plus MCP server registration for tool integrations
 - **Gemini CLI**: native `gemini extensions install <git-url>` with no marketplace gatekeeper
+- **Grok Build**: official docs describe skills, plugins, marketplaces, MCPs, hooks, agents, and Claude Code compatibility
 
 For a side-by-side comparison of how to package and install a skill that works on all three, see [`patterns/skill-installation.md`](patterns/skill-installation.md).
 
@@ -89,7 +92,7 @@ A simple way to think about the ecosystem layers and where each project lives:
 │  Official sources                                               │
 │  ────────────────                                               │
 │  anthropics/claude-code, openai/codex, google-gemini/gemini-cli │
-│  modelcontextprotocol                                           │
+│  xAI Grok Build docs, modelcontextprotocol                      │
 │  ("here is the source of truth — but no cross-CLI synthesis")   │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -106,4 +109,4 @@ A simple way to think about the ecosystem layers and where each project lives:
 - [comparison.md](comparison.md) — feature-by-feature comparison matrix
 - [migration-guide.md](migration-guide.md) — porting automations between CLIs
 - [patterns/](patterns/) — all the cross-platform pattern guides
-- [../skill-authoring/cross-platform.md](../skill-authoring/cross-platform.md) — designing skills that work across all three CLIs
+- [../skill-authoring/cross-platform.md](../skill-authoring/cross-platform.md) — designing skills that work across multiple CLIs
