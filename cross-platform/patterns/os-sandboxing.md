@@ -1,7 +1,7 @@
 # OS-Level Sandboxing vs CLI Permission Gating
 
 How each CLI isolates agent-executed commands from your system, and when each level of isolation is appropriate.
-Verified against Claude Code v2.1.104, Codex CLI v0.114.0, Gemini CLI v0.33.0 on 2026-04-14.
+Verified against Claude Code v2.1.104 and Gemini CLI v0.33.0 on 2026-04-14; Codex CLI v0.130.0 and Grok Build v0.1.211 on 2026-05-17.
 
 ## Two Layers, Often Confused
 
@@ -45,20 +45,22 @@ Claude Code's permission system lives entirely inside the CLI process. The relev
 
 ### Codex CLI: BOTH in-CLI gating AND OS-level sandbox
 
-Codex is the only one of the three with native OS-level sandboxing.
+Codex is the only one in this comparison with a verified native OS-level
+sandbox subcommand.
 
 **In-CLI gating** lives on `codex exec`:
 
 | Flag / value | Behavior |
 |------------|----------|
 | `-s read-only` (`--sandbox read-only`) | Read-only mode |
-| `-s workspace-write` (default) | Read all, write to project only |
+| `-s workspace-write` | Read all, write to project only |
 | `-s danger-full-access` | No sandbox, full access |
-| `-a untrusted` (`--ask-for-approval`) | Run only "trusted" commands without asking |
-| `-a on-request` | Model decides when to ask |
-| `-a never` | Never ask for approval |
-| `--full-auto` | Convenience for `-a on-request --sandbox workspace-write` |
+| `--full-auto` | Deprecated compatibility flag for workspace-write automation; v0.130 says to use `--sandbox workspace-write` |
 | `--dangerously-bypass-approvals-and-sandbox` | Skip all approvals AND sandbox |
+
+`-a/--ask-for-approval` still appears in top-level `codex --help`, but it was not
+listed under `codex exec --help` in v0.130. For exec scripts, use the exec help
+surface as source of truth.
 
 **OS-level sandbox** is its own top-level subcommand: `codex sandbox`.
 
@@ -79,7 +81,7 @@ This is **not** the same as `codex exec --sandbox`. The `codex sandbox <os>` sub
 
 - Test that a build script is sandbox-safe before letting an agent run it
 - Wrap third-party commands in a sandbox boundary as part of a CI step
-- Run a Codex agent under explicit OS-level sandboxing: `codex sandbox linux -- codex exec --full-auto "..."`
+- Run a Codex agent under explicit OS-level sandboxing: `codex sandbox linux -- codex exec --sandbox workspace-write "..."`
 
 This is the closest portable "sandbox a process" command in the CLI agent ecosystem.
 
@@ -101,6 +103,23 @@ Gemini has its own approval system and a `--sandbox` flag, but the underlying is
 
 `gemini -s` enables sandbox mode but the documentation around what *kind* of sandbox is sparse. For high-trust isolation, prefer `codex sandbox <os>` or run `gemini` itself inside a container.
 
+### Grok Build: in-CLI gating, Claude-compatible config, ACP
+
+Grok Build exposes permission and sandbox controls, but this audit only partially
+verified them.
+
+| Flag / value | Behavior |
+|------------|----------|
+| `--permission-mode plan` | Produced a plan locally |
+| `--permission-mode default|acceptEdits|auto|dontAsk|bypassPermissions` | Help-exposed, not workflow-verified |
+| `--sandbox <PROFILE>` | Help-exposed; read-only write probe did not create a file but returned cancelled output |
+| `--always-approve` | Official docs confirm auto-approval path |
+| `--allow`, `--deny`, `--tools`, `--disallowed-tools` | Help-exposed tool gating surface |
+
+Run `grok inspect` first. Local tests showed Grok loading Claude-compatible
+skills, plugins, hooks, agents, MCP servers, and permissions from user config,
+which can affect safety behavior and stderr output.
+
 ## Pick-Your-Tool Decision Tree
 
 ```
@@ -108,10 +127,10 @@ Need to run agent-driven code on this machine?
 │
 ├── It's a local dev environment, you trust the prompt source
 │   └── Any CLI's in-CLI gating is fine
-│       (Claude --permission-mode default, Codex --full-auto, Gemini --approval-mode default)
+│       (Claude --permission-mode default, Codex --sandbox workspace-write, Gemini --approval-mode default)
 │
 ├── It's CI, you trust the prompt source but want hard caps
-│   └── Any CLI with --print + ephemeral + plan mode for read-only steps
+│   └── Any CLI with headless mode plus stateless/read-only flags
 │       Pair with --max-budget-usd (Claude only) for spend cap
 │
 ├── It's CI, you may not fully trust the prompt source
@@ -126,7 +145,8 @@ Need to run agent-driven code on this machine?
 └── It's a one-shot read-only audit
     ├── Claude Code: --permission-mode plan
     ├── Codex CLI: -s read-only
-    └── Gemini CLI: --approval-mode plan
+    ├── Gemini CLI: --approval-mode plan
+    └── Grok Build: --permission-mode plan (or task-specific sandbox probe)
 ```
 
 ## Recipe: Codex agent inside its own OS sandbox
@@ -134,20 +154,20 @@ Need to run agent-driven code on this machine?
 ```bash
 # Codex exec wrapped in Linux landlock+seccomp via the codex sandbox subcommand
 codex sandbox linux -- \
-  codex exec --full-auto --json --ephemeral \
+  codex exec --sandbox workspace-write --json --ephemeral \
     "Run the test suite and summarize failures"
 ```
 
 This composes two layers:
 
 1. The outer `codex sandbox linux` enforces OS isolation around the entire process tree
-2. The inner `codex exec --full-auto` is the agent run; it does its own in-CLI gating *inside* the sandbox
+2. The inner `codex exec --sandbox workspace-write` is the agent run; it does its own in-CLI gating *inside* the sandbox
 
 If the agent inside ever decides to do something destructive, the kernel still refuses because the outer sandbox is in effect.
 
 ## Recipe: Read-only multi-CLI audit
 
-For "look at this code but never modify anything" tasks, all three CLIs have a read-only mode:
+For "look at this code but never modify anything" tasks, all four CLIs have a read-only or planning mode:
 
 ```bash
 # Claude Code
@@ -158,6 +178,9 @@ codex exec --sandbox read-only "Audit auth/ for security issues"
 
 # Gemini CLI
 gemini -p "Audit auth/ for security issues" --approval-mode plan
+
+# Grok Build
+grok -p "Audit auth/ for security issues" --permission-mode plan --max-turns 20
 ```
 
 These are all *in-CLI* read-only. None of them prevent the binary itself from being malicious; they prevent the *agent* from invoking write/execute tools.
@@ -166,7 +189,9 @@ These are all *in-CLI* read-only. None of them prevent the binary itself from be
 
 - **Trusting `--dangerously-skip-permissions` in production CI** — even if you trust your prompts, it bypasses safety checks across subagents in ways that can surprise you. Prefer `--permission-mode plan` or run inside a container.
 - **Confusing `codex exec --sandbox` with `codex sandbox <os>`** — they're different mechanisms at different layers. Use `--sandbox` for in-CLI policy on a Codex agent run; use `codex sandbox <os>` to wrap any command in OS-level isolation.
+- **Using Codex `--full-auto` in new docs** — v0.130 still accepts it, but it is deprecated compatibility. Use explicit `--sandbox workspace-write`.
 - **Assuming Gemini's `--sandbox` is equivalent to Codex's sandbox subcommand** — Gemini's `-s` is closer to "enable safer mode" than to a hard OS-level wall. For untrusted workloads, prefer Codex's OS sandbox or a real container.
+- **Assuming Grok `--sandbox` semantics from help text alone** — run a disposable write probe and inspect loaded Claude-compatible config before trusting a workflow.
 - **Forgetting that read-only ≠ free** — read-only mode still makes API calls and still costs money. Pair with `--max-budget-usd` (Claude only) or external accounting if you care about cost ceilings.
 
 ## See Also

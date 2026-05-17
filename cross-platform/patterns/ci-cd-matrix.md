@@ -70,7 +70,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           git diff ${{ github.event.pull_request.base.sha }} HEAD | \
-            codex exec - "Review this diff for bugs and security issues. Be concise." \
+            codex exec "Review this diff for bugs and security issues in stdin. Be concise." \
               --ephemeral \
               -o review.md
 
@@ -166,7 +166,7 @@ ai-review-codex:
   before_script:
     - npm install -g @openai/codex
   script:
-    - git diff $CI_MERGE_REQUEST_DIFF_BASE_SHA HEAD | codex exec - "Review this diff" --ephemeral -o review.md
+    - git diff $CI_MERGE_REQUEST_DIFF_BASE_SHA HEAD | codex exec "Review this diff from stdin" --ephemeral -o review.md
   variables:
     OPENAI_API_KEY: $OPENAI_API_KEY
 
@@ -201,7 +201,7 @@ jobs:
           - name: codex
             install: npm install -g @openai/codex
             key_var: OPENAI_API_KEY
-            cmd: "cat pr.diff | codex exec - 'Review this diff' --ephemeral"
+            cmd: "cat pr.diff | codex exec 'Review this diff from stdin' --ephemeral"
           - name: gemini
             install: npm install -g @google/gemini-cli
             key_var: GEMINI_API_KEY

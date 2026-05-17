@@ -5,6 +5,12 @@ description: Automate OpenAI's Codex CLI with non-interactive exec mode, session
 
 # Codex CLI Automation
 
+> **Verification status (2026-05-17):** Core exec-mode behavior was re-verified
+> locally against **Codex CLI v0.130.0**. Current docs should prefer explicit
+> `--sandbox workspace-write` over deprecated `--full-auto`, parse JSONL
+> `agent_message` items, and pipe stdin directly to `codex exec "prompt"` rather
+> than using the old trailing `-` pattern.
+
 ## Overview
 
 Codex CLI ships with an **exec mode** (`codex exec` or `codex e`) designed for non-interactive, programmatic use.
@@ -17,7 +23,7 @@ Basic invocation:
 ```bash
 codex exec "Your prompt here"
 codex e "Your prompt here"                    # shorthand
-echo "Your prompt" | codex exec -             # pipe from stdin
+echo "input text" | codex exec "Summarize stdin"
 ```
 
 **Key differentiators from other CLI agents:**
@@ -48,7 +54,7 @@ echo "Your prompt" | codex exec -             # pipe from stdin
 
 ### "I want to call Codex programmatically from scripts or CI/CD"
 -> Read [guides/automate-cli.md](guides/automate-cli.md)
-Key commands: `codex exec`, `--full-auto`, `--json`, `-o`
+Key commands: `codex exec`, `--sandbox`, `--json`, `--output-schema`, `-o`
 
 ### "I want to build multi-step workflows that maintain context across invocations"
 -> Read [guides/session-management.md](guides/session-management.md)
@@ -87,10 +93,10 @@ These four recipes cover roughly 80% of use cases.
 codex exec "Summarize this codebase"
 
 # Pipe file content via stdin
-cat main.py | codex exec - "List all function names in this file"
+cat main.py | codex exec "List all function names in stdin"
 
-# Auto-approve all actions (use in sandboxed environments only)
-codex exec "Refactor auth.ts to use async/await" --full-auto
+# Allow project writes explicitly
+codex exec "Refactor auth.ts to use async/await" --sandbox workspace-write
 
 # Full autonomy mode (no approvals, no sandbox)
 codex exec "Fix all lint errors" \
@@ -126,7 +132,7 @@ codex exec resume --last "Write tests for the changes you just made"
 # In GitHub Actions (uses OPENAI_API_KEY from secrets)
 codex exec "Review this PR diff for security issues. Output findings as JSON." \
   --json \
-  --full-auto \
+  --sandbox read-only \
   -o review-findings.json
 
 # Process multiple files
@@ -146,7 +152,8 @@ done
 The `exec` subcommand (or `e` shorthand) switches Codex from its interactive TUI into
 non-interactive mode:
 
-- Input comes from the command argument or stdin (with `-`)
+- Input comes from the command argument and, if stdin is piped, Codex appends it
+  as a `<stdin>` block
 - Output goes to stdout (or file with `-o`)
 - The process exits after producing a response
 - Approvals depend on sandbox/approval settings
@@ -158,18 +165,21 @@ Codex has three sandbox levels, controllable via `-s`:
 | Mode | Flag | What It Allows |
 |------|------|----------------|
 | **Read-only** | `-s read-only` | Can read files, cannot write or execute |
-| **Workspace-write** | `-s workspace-write` (default) | Can write within project, no system access |
+| **Workspace-write** | `-s workspace-write` | Can write within project, no system access |
 | **Full access** | `-s danger-full-access` | Unrestricted — use with caution |
 
 ### Approval Modes
 
 Combined with sandbox, these control autonomy:
 
-- **Default** — Prompts for approval on writes and executions
-- **`--full-auto`** — Applies automation presets (workspace-write sandbox, on-request approvals)
+- **Default** — Depends on CLI version and user config; set `--sandbox` explicitly in scripts
+- **`--sandbox workspace-write`** — Current explicit automation-friendly write mode
+- **`--full-auto`** — Deprecated compatibility flag; v0.130 still accepts it and prints a warning
 - **`--dangerously-bypass-approvals-and-sandbox`** — No approvals, no sandbox. Only use in isolated environments.
 
-For true full autonomy: `codex exec --full-auto --dangerously-bypass-approvals-and-sandbox "task"`. Without both flags, approval prompts may still appear.
+For true full autonomy in an externally isolated environment:
+`codex exec --dangerously-bypass-approvals-and-sandbox "task"`. Do not use this
+against a normal working tree.
 
 ### AGENTS.md Configuration
 
@@ -202,28 +212,35 @@ Use `--ephemeral` when you want stateless, fire-and-forget invocations.
 ## Critical Gotchas
 
 1. **Full auto requires multiple conditions** — `--full-auto` alone isn't enough for
-   complete autonomy. You also need `--dangerously-bypass-approvals-and-sandbox` and a trusted
-   workspace. Without all conditions met, you'll still get approval prompts.
+   complete autonomy, and v0.130 marks it deprecated. Prefer explicit sandbox
+   modes in new scripts.
 
 2. **`-o` writes the final message only** — The `-o` / `--output-last-message` flag captures
-   only the assistant's last message, not the full conversation. For complete output, use
-   `--json` and capture stdout.
+   only the assistant's last message, not the full conversation. v0.130 writes
+   the file and still prints the final message to stdout. For complete event
+   output, use `--json` and capture stdout.
 
-4. **Stdin requires the `-` flag** — Unlike Claude Code where piping to `-p` works directly,
-   Codex exec needs `echo "prompt" | codex exec -` with an explicit dash.
+3. **Stdin no longer needs the old trailing `-` pattern** — In v0.130,
+   `printf '...' | codex exec "prompt"` works and appends stdin as a `<stdin>`
+   block. `codex exec "prompt" -` now fails with "unexpected argument '-'" when
+   a prompt argument is already present.
 
-5. **AGENTS.md has a size limit** — Combined instructions cap at `project_doc_max_bytes`
+4. **AGENTS.md has a size limit** — Combined instructions cap at `project_doc_max_bytes`
    (32 KiB default). If your AGENTS.md chain exceeds this, later files silently get truncated.
 
-6. **Session resume is directory-scoped** — both `codex resume --last` and `codex exec resume --last`
+5. **Session resume is directory-scoped** — both `codex resume --last` and `codex exec resume --last`
    find the most recent session in the *current* directory. Changing directories changes which
    session is "last". This catches people who `cd` between steps in a workflow.
 
-8. **`resume` and `exec resume` are different commands** — `codex resume` launches the
+6. **`resume` and `exec resume` are different commands** — `codex resume` launches the
    interactive TUI on a previous session. `codex exec resume` continues a session in
    non-interactive exec mode. Use the one that matches your context; they are not aliases.
 
-7. **API key auth is separate from ChatGPT auth** — API key billing goes to your OpenAI Platform
+7. **Put parent options before `exec resume`** — `codex exec resume --last ... --sandbox read-only`
+    failed locally because `--sandbox` is a parent `exec` option. Use
+    `codex exec --sandbox read-only resume --last "follow-up"`.
+
+8. **API key auth is separate from ChatGPT auth** — API key billing goes to your OpenAI Platform
    account, not your ChatGPT subscription. They're different billing systems.
 
 9. **`--enable`/`--disable` toggle feature flags per-invocation, not permanently** —
@@ -252,9 +269,9 @@ Load these files only when the decision router points you to them:
 | `guides/automate-cli.md` | End-to-end guide for CLI automation and scripting | Building shell scripts, CI/CD pipelines, batch jobs |
 | `guides/session-management.md` | Session resume, multi-step workflows, output capture | Building multi-turn automated workflows |
 | `guides/agents-md.md` | AGENTS.md configuration patterns and hierarchy | Configuring project or team-wide instructions |
-| `reference/exec-mode-flags.md` | Complete flag reference for `codex exec` (v0.114.0 verified) | Need exact flag syntax or interactions for non-interactive mode |
+| `reference/exec-mode-flags.md` | Complete flag reference for `codex exec` (v0.130.0 verified) | Need exact flag syntax or interactions for non-interactive mode |
 | `reference/subcommands.md` | Top-level + per-subcommand reference (`sandbox`, `cloud`, `apply`, `fork`, `resume`, `features`, `app`, `app-server`, `debug`, `mcp`, `mcp-server`, `review`) | Using any `codex` subcommand other than `exec` |
 | `reference/json-output.md` | JSONL output shapes for `--json` | Parsing structured responses |
 | `reference/code-snippets.md` | Copy-paste code examples in Bash, Python, JS | Need a working starting point |
-| `reference/known-issues.md` | Verified gotchas (deprecated `--on-failure`, sandbox-vs-sandbox confusion, resume-vs-exec-resume distinction) | Debugging unexpected behavior or porting from older Codex versions |
-| `reference/changelog.md` | Per-version notes for v0.115–v0.120 from official release notes | Deciding what's in the upstream gap before you upgrade |
+| `reference/known-issues.md` | Verified gotchas and current upstream issue leads | Debugging unexpected behavior or porting from older Codex versions |
+| `reference/changelog.md` | Historical release-note tracking | Deciding what's changed across versions |

@@ -180,5 +180,5 @@ Use `claude doctor` first if you want to verify the auto-updater is healthy befo
 ## See Also
 
 - [print-mode-flags.md](print-mode-flags.md) — full flag reference for `claude -p`
-- [json-output.md](json-output.md) — JSON response shapes
+- [json-schemas.md](json-schemas.md) — JSON response shapes
 - [streaming-events.md](streaming-events.md) — stream-json event reference

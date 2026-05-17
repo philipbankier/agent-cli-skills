@@ -1,17 +1,21 @@
 # Cross-CLI Skill Installation
 
-How each CLI installs and discovers reusable skills, and how to package a single skill so it works across all three.
-Verified against Claude Code v2.1.104, Codex CLI v0.114.0, Gemini CLI v0.33.0 on 2026-04-14.
+How each CLI installs and discovers reusable skills, and how to package a single skill so it works across multiple CLIs.
+Verified against Claude Code v2.1.104 and Gemini CLI v0.33.0 on 2026-04-14; Codex CLI v0.130.0 and Grok Build v0.1.211 references refreshed on 2026-05-17.
 
 ## TL;DR Per-CLI
 
 | CLI | Native install command | Source types | Sharing model |
 |-----|----------------------|--------------|---------------|
 | **Claude Code** | `claude plugin install owner/plugin` (or `owner/plugin@marketplace`) | Marketplace registry | Plugins (which can bundle skills) |
-| **Codex CLI** | None | — | MCP servers + AGENTS.md |
+| **Codex CLI** | Plugin command exists; no verified standalone skill installer | Codex plugins, MCP, AGENTS.md | Plugins + MCP servers + AGENTS.md |
 | **Gemini CLI** | `gemini skills install <git-url-or-path>` | Direct git URL or local path | Skills + Extensions |
+| **Grok Build** | Manual `.grok/skills/` or Claude-compatible plugin/skill paths | `.grok`, Claude-compatible skills/plugins/marketplaces | Grok skills + Claude-compatible skills/plugins |
 
-Gemini is the only one of the three that ships a native `skills install <git-url>` command. Claude Code requires marketplace registration. Codex doesn't have a first-party skill installer at all — its closest analog is registering an MCP server.
+Gemini is still the cleanest direct `skills install <git-url>` path. Claude Code
+and Grok Build lean on plugin/marketplace and manual skill paths. Codex v0.130
+has a `plugin` command, but this audit did not verify a standalone SKILL.md
+installer equivalent to Gemini's.
 
 ## Claude Code: `claude plugin`
 
@@ -48,9 +52,11 @@ A plugin can contain:
 
 A bare skill (just `SKILL.md` with frontmatter) can be dropped into either of the first two paths and Claude Code will discover it via the description matching mechanism.
 
-## Codex CLI: no native skill installer
+## Codex CLI: plugins, MCP, and AGENTS.md
 
-Codex doesn't have a first-party `skills` subcommand. Its analogs:
+Codex v0.130 exposes a `plugin` command, plus MCP and `AGENTS.md` paths. This
+audit refreshed `codex --help` but did not validate the plugin marketplace
+lifecycle end-to-end.
 
 ### MCP servers as skill substitutes
 
@@ -176,19 +182,39 @@ gemini skills link ./my-skill
 
 ### Codex CLI installation
 
-There's no skill installer. Choose an integration path:
+Choose an integration path:
 
 - **MCP path** — wrap the skill's behavior in an MCP server and register it via `codex mcp`. The skill's instructions become tool descriptions and prompt templates inside the MCP server.
 - **`AGENTS.md` path** — append the skill's instructions to your project's `AGENTS.md`. Loses per-task discovery, but the agent always has the context.
 - **Slash-command path** — define a custom command in `~/.codex/config.toml` that invokes `codex exec` with the skill's instructions baked into `--system-prompt` or `--append-system-prompt`. This is the closest to per-task triggering.
+
+### Grok Build installation
+
+For this repo's Grok skill:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/philipbankier/agent-cli-skills/main/install/install-grok.sh | bash
+```
+
+Manual project install path:
+
+```bash
+mkdir -p .grok/skills/my-skill
+cp -r my-skill/* .grok/skills/my-skill/
+```
+
+Grok Build also reads Claude-compatible skills/plugins/MCP/hooks according to
+official docs and local `grok inspect` output. Use `grok inspect` to confirm what
+was loaded before relying on a skill-triggering behavior.
 
 ## Validation Before Publishing
 
 | CLI | Validation command |
 |-----|-------------------|
 | Claude Code | `claude plugin validate <path>` |
-| Codex CLI | None (no plugin/skill format to validate) |
+| Codex CLI | Plugin validation not verified in this audit |
 | Gemini CLI | `gemini extensions validate <path>` (note: skills don't have a separate validator) |
+| Grok Build | No standalone validator verified; use `grok inspect` and smoke tests |
 
 Run both Claude and Gemini validators in CI before publishing. They catch different things — Claude's validator focuses on the plugin manifest format, Gemini's focuses on extension structure.
 
@@ -199,6 +225,7 @@ Run both Claude and Gemini validators in CI before publishing. They catch differ
 | Claude Code | Skills are matched against the agent's task description. The matching is done by the agent itself based on the SKILL.md frontmatter description. |
 | Codex CLI | N/A — `AGENTS.md` is always loaded; MCP server tools are listed but not "discovered" the way skills are. |
 | Gemini CLI | Same as Claude — agent matches against the description field at task time. |
+| Grok Build | Official docs describe skills and Claude compatibility; local `grok inspect` confirms loaded skills/plugins, but trigger heuristics need task-specific testing. |
 
 The implication: write skill descriptions for **agents to read**, not for humans browsing a list. Lead with the trigger condition ("Use this skill when the user wants to ..."). Avoid generic descriptions like "A useful skill for X" — those don't match against task context well.
 
@@ -206,12 +233,12 @@ The implication: write skill descriptions for **agents to read**, not for humans
 
 - **Publishing a plugin without a marketplace entry** — Claude Code can't install it without one. Either register it in a marketplace (or your own) or document the manual `.claude/skills/<name>/` install path.
 - **Forgetting that Claude Code plugins require restart** — `claude plugin update` requires a CLI restart to apply the new version. CI scripts that update plugins mid-run will silently keep using the old one until restart.
-- **Putting CLI-specific instructions in shared SKILL.md** — if your skill targets all three CLIs, fence the platform-specific bits into clearly labeled sections, the way `cross-platform.md` skill-authoring guide describes.
+- **Putting CLI-specific instructions in shared SKILL.md** — if your skill targets multiple CLIs, fence the platform-specific bits into clearly labeled sections, the way `cross-platform.md` skill-authoring guide describes.
 - **Confusing `gemini skills install` with `gemini extensions install`** — they're separate registries. A skill installed via `skills install` won't show up under `extensions list`. Use extensions when you want the superset (skills + MCP + commands + themes + hooks); use skills when you only need the SKILL.md.
 
 ## See Also
 
-- [hook-migration.md](hook-migration.md) — porting hooks across the three CLIs
-- [../../skill-authoring/cross-platform.md](../../skill-authoring/cross-platform.md) — designing a skill that works across all three CLIs
+- [hook-migration.md](hook-migration.md) — porting hooks across CLIs
+- [../../skill-authoring/cross-platform.md](../../skill-authoring/cross-platform.md) — designing a skill that works across multiple CLIs
 - [../../skills/gemini-cli/reference/subcommands.md](../../skills/gemini-cli/reference/subcommands.md#gemini-skills--agent-skill-management) — full `gemini skills` and `gemini extensions` reference
 - [../../skills/claude-code/reference/commands.md](../../skills/claude-code/reference/commands.md#claude-plugin-alias-plugins) — full `claude plugin` reference

@@ -1,10 +1,10 @@
 # Migration Guide: Porting Between CLI Agents
 
-How to port automation scripts and skills between Claude Code, Codex CLI, and Gemini CLI.
+How to port automation scripts and skills between Claude Code, Codex CLI, Gemini CLI, and Grok Build.
 
 ## The Rosetta Stone
 
-The same task — "review a PR diff" — implemented in all three CLIs:
+The same task — "review a PR diff" — implemented in four CLIs:
 
 ### Claude Code
 
@@ -18,10 +18,10 @@ git diff main...HEAD | claude -p \
 ### Codex CLI
 
 ```bash
-git diff main...HEAD | codex exec - \
-  "Review this diff for bugs and security issues" \
+git diff main...HEAD | codex exec \
+  "Review this diff for bugs and security issues in stdin" \
   --json \
-  --ephemeral | jq -r '.content'
+  --ephemeral | jq -r 'select(.type == "item.completed") | .item | select(.type == "agent_message") | .text'
 ```
 
 ### Gemini CLI
@@ -32,19 +32,33 @@ git diff main...HEAD | gemini -p \
   --output-format json | jq -r '.response'
 ```
 
+### Grok Build
+
+```bash
+{
+  printf 'Review this diff for bugs and security issues.\n\n'
+  git diff main...HEAD
+} > pr-review.prompt
+
+grok --prompt-file pr-review.prompt \
+  --output-format json \
+  --no-plan \
+  --max-turns 20 | jq -r '.text'
+```
+
 ## Flag Translation Table
 
-| Concept | Claude Code | Codex CLI | Gemini CLI |
-|---------|------------|-----------|------------|
-| Run non-interactively | `claude -p "prompt"` | `codex exec "prompt"` | `gemini -p "prompt"` |
-| Pipe from stdin | `echo "x" \| claude -p` | `echo "x" \| codex exec -` | `echo "x" \| gemini` |
-| JSON output | `--output-format json` | `--json` | `--output-format json` |
-| Streaming | `--output-format stream-json --verbose` | `--json` (JSONL events) | `--output-format stream-json` |
-| Auto-approve all | `--dangerously-skip-permissions` | `--full-auto --dangerously-bypass-approvals-and-sandbox` | `-y` / `--yolo` |
-| Stateless | `--no-session-persistence` | `--ephemeral` | Default (sessions available with `-r`/`--resume`) |
-| Model select | `--model sonnet` | `--model o3` | `-m gemini-2-5-flash` |
-| System prompt | `--append-system-prompt "..."` | Via AGENTS.md | Via GEMINI.md |
-| Budget limit | `--max-budget-usd 1.00` | — | — |
+| Concept | Claude Code | Codex CLI | Gemini CLI | Grok Build |
+|---------|------------|-----------|------------|------------|
+| Run non-interactively | `claude -p "prompt"` | `codex exec "prompt"` | `gemini -p "prompt"` | `grok -p "prompt"` |
+| Pipe from stdin | `echo "x" \| claude -p "prompt"` | `echo "x" \| codex exec "prompt"` | `echo "x" \| gemini -p "prompt"` | Use `--prompt-file` or prompt JSON; stdin piping not verified |
+| JSON output | `--output-format json` | `--json` | `--output-format json` | `--output-format json` |
+| Streaming | `--output-format stream-json --verbose` | `--json` (JSONL events) | `--output-format stream-json` | `--output-format streaming-json` |
+| Auto-approve all | `--dangerously-skip-permissions` | Prefer explicit `--sandbox workspace-write`; dangerous bypass available | `-y` / `--yolo` | `--always-approve` |
+| Stateless | `--no-session-persistence` | `--ephemeral` | Default (sessions available with `-r`/`--resume`) | Not verified as a single flag |
+| Model select | `--model sonnet` | `--model o3` | `-m gemini-2-5-flash` | `--model grok-build` |
+| System prompt | `--append-system-prompt "..."` | Via AGENTS.md | Via GEMINI.md | Via instructions/config; exact precedence needs verification |
+| Budget limit | `--max-budget-usd 1.00` | - | - | `--max-turns` bounds turns, not spend |
 
 ## JSON Output Shape Differences
 
@@ -67,12 +81,12 @@ The JSON response structure differs across CLIs:
 ### Codex CLI
 ```jsonl
 {"type": "thread.started", "thread_id": "..."}
-{"type": "turn.started", "turn_id": "..."}
-{"type": "item.completed", "item": {"type": "message", "content": [{"type": "text", "text": "The response text"}]}}
-{"type": "turn.completed", "turn_id": "..."}
+{"type": "turn.started"}
+{"type": "item.completed", "item": {"type": "agent_message", "text": "The response text"}}
+{"type": "turn.completed", "usage": {"input_tokens": 100, "output_tokens": 20}}
 ```
 - JSONL (one event per line) with `--json` flag
-- Filter for `type == "item.completed"` and `item.type == "message"` to get the response
+- Filter for `type == "item.completed"` and `item.type == "agent_message"` to get the response
 - Or use `-o file.txt` for clean output
 
 ### Gemini CLI
@@ -99,7 +113,7 @@ result=$(claude -p "Summarize this" --no-session-persistence < file.py)
 
 **To Codex CLI:**
 ```bash
-result=$(cat file.py | codex exec - "Summarize this" --ephemeral)
+result=$(cat file.py | codex exec "Summarize stdin" --ephemeral)
 ```
 
 **To Gemini CLI:**
@@ -151,16 +165,16 @@ cat /tmp/security.txt /tmp/performance.txt /tmp/readability.txt > analysis.txt
 
 The structure is identical — only the install command, env var, and CLI invocation change:
 
-| Step | Claude Code | Codex CLI | Gemini CLI |
-|------|------------|-----------|------------|
-| Install | `npm i -g @anthropic-ai/claude-code` | `npm i -g @openai/codex` | `npm i -g @google/gemini-cli` |
-| Auth env var | `ANTHROPIC_API_KEY` | `OPENAI_API_KEY` | `GEMINI_API_KEY` |
-| Review command | `claude -p "..." --no-session-persistence` | `codex exec "..." --ephemeral` | `gemini -p "..." -m gemini-2-5-flash` |
+| Step | Claude Code | Codex CLI | Gemini CLI | Grok Build |
+|------|------------|-----------|------------|------------|
+| Install | `npm i -g @anthropic-ai/claude-code` | `npm i -g @openai/codex` | `npm i -g @google/gemini-cli` | `curl -fsSL https://x.ai/cli/install.sh \| bash` |
+| Auth env var | `ANTHROPIC_API_KEY` | `OPENAI_API_KEY` | `GEMINI_API_KEY` | `GROK_CODE_XAI_API_KEY` |
+| Review command | `claude -p "..." --no-session-persistence` | `codex exec "..." --ephemeral` | `gemini -p "..." -m gemini-2-5-flash` | `grok -p "..." --output-format json --no-plan` |
 
 ## Gotchas When Migrating
 
 ### Claude Code → Codex CLI
-- Replace `< file.py` with `cat file.py | codex exec -` (stdin needs the `-` flag)
+- Replace `< file.py` with `cat file.py | codex exec "prompt"` when a prompt is present
 - Replace `--no-session-persistence` with `--ephemeral`
 - Replace `--output-format json | jq '.result'` with `-o output.txt` (cleaner)
 - Remove `--verbose` (not needed for Codex JSON)

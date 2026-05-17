@@ -49,6 +49,10 @@ codex exec "List all functions" --json --ephemeral
 
 # Or save clean output to file
 codex exec "List all functions" --ephemeral -o functions.txt
+
+# Extract final text from JSONL on v0.130+
+codex exec "List all functions" --json --ephemeral |
+  jq -r 'select(.type == "item.completed") | .item | select(.type == "agent_message") | .text'
 ```
 
 ### Gemini CLI
@@ -69,6 +73,25 @@ gemini -p "List all functions" --output-format json < main.py
 gemini -p "prompt" --output-format json < file.py | jq -r '.response'
 ```
 
+### Grok Build
+
+```bash
+# Final JSON object
+grok -p "List all functions" \
+  --output-format json \
+  --disable-web-search \
+  --no-plan \
+  --max-turns 10 | jq -r '.text'
+
+# Streaming JSONL
+grok -p "List all functions" \
+  --output-format streaming-json \
+  --disable-web-search \
+  --no-plan \
+  --max-turns 10 |
+  jq -r 'select(.type == "text") | .data'
+```
+
 ## Requesting Structured JSON from Any CLI
 
 When you need the model to return JSON (not just metadata), include it in the prompt:
@@ -81,10 +104,17 @@ Example: ["func1", "func2", "func3"]'
 claude -p "$PROMPT" --no-session-persistence < main.py
 
 # Codex CLI
-cat main.py | codex exec - "$PROMPT" --ephemeral
+cat main.py | codex exec "$PROMPT" --ephemeral
 
 # Gemini CLI
 gemini -p "$PROMPT" -m gemini-2-5-flash < main.py
+
+# Grok Build
+{
+  printf '%s\n\n' "$PROMPT"
+  cat main.py
+} > /tmp/grok-prompt.txt
+grok --prompt-file /tmp/grok-prompt.txt --output-format json --no-plan --max-turns 10
 ```
 
 ## Normalizing Output Across CLIs
@@ -95,7 +125,7 @@ A wrapper function that returns consistent output regardless of which CLI is use
 #!/usr/bin/env bash
 # normalize-output.sh — Consistent JSON output from any CLI
 
-CLI="${CLI:-claude}"  # Set to "claude", "codex", or "gemini"
+CLI="${CLI:-claude}"  # Set to "claude", "codex", "gemini", or "grok"
 
 run_prompt() {
   local prompt="$1"
@@ -111,7 +141,7 @@ run_prompt() {
       ;;
     codex)
       if [ -n "$input_file" ]; then
-        cat "$input_file" | codex exec - "$prompt" --ephemeral
+        cat "$input_file" | codex exec "$prompt" --ephemeral
       else
         codex exec "$prompt" --ephemeral
       fi
@@ -121,6 +151,17 @@ run_prompt() {
         gemini -p "$prompt" -m gemini-2-5-flash < "$input_file"
       else
         gemini -p "$prompt" -m gemini-2-5-flash
+      fi
+      ;;
+    grok)
+      if [ -n "$input_file" ]; then
+        tmp_prompt=$(mktemp)
+        printf '%s\n\n' "$prompt" > "$tmp_prompt"
+        cat "$input_file" >> "$tmp_prompt"
+        grok --prompt-file "$tmp_prompt" --output-format json --no-plan --max-turns 10 | jq -r '.text'
+        rm -f "$tmp_prompt"
+      else
+        grok -p "$prompt" --output-format json --no-plan --max-turns 10 | jq -r '.text'
       fi
       ;;
     *)
@@ -137,14 +178,16 @@ run_prompt() {
 
 ## JSON Schema Support Matrix
 
-| Feature | Claude Code | Codex CLI | Gemini CLI |
-|---------|------------|-----------|------------|
-| Schema validation flag | `--json-schema '{...}'` | `--output-schema` | — |
-| Schema-validated field | `.structured_output` | — | — |
-| Free-text response | `.result` | stdout / `-o` file | `.response` |
-| Prompt-based JSON | Yes | Yes | Yes |
+| Feature | Claude Code | Codex CLI | Gemini CLI | Grok Build |
+|---------|------------|-----------|------------|------------|
+| Schema validation flag | `--json-schema '{...}'` | `--output-schema` | - | Not verified |
+| Schema-validated field | `.structured_output` | Final message / `-o` file | - | - |
+| Free-text response | `.result` | stdout / `-o` file | `.response` | `.text` |
+| Prompt-based JSON | Yes | Yes | Yes | Yes |
 
-**Claude Code is the only CLI with built-in JSON schema enforcement.** For Codex and Gemini, include the desired JSON format in your prompt and validate the response yourself.
+Claude Code and Codex CLI both have CLI-level schema flags. Gemini and Grok
+Build should use prompt-based JSON plus external validation until schema support
+is verified.
 
 ## Validation Pattern (Any CLI)
 
@@ -175,6 +218,7 @@ class CLI(Enum):
     CLAUDE = "claude"
     CODEX = "codex"
     GEMINI = "gemini"
+    GROK = "grok"
 
 def run_prompt(prompt: str, cli: CLI = CLI.CLAUDE, input_file: str = None) -> str:
     """Run a prompt on any CLI and return the text response."""
@@ -190,7 +234,6 @@ def run_prompt(prompt: str, cli: CLI = CLI.CLAUDE, input_file: str = None) -> st
     elif cli == CLI.CODEX:
         cmd = ["codex", "exec", prompt, "--ephemeral"]
         if input_file:
-            cmd = ["codex", "exec", "-", prompt, "--ephemeral"]
             with open(input_file) as f:
                 result = subprocess.run(cmd, stdin=f, capture_output=True, text=True)
         else:
@@ -205,6 +248,16 @@ def run_prompt(prompt: str, cli: CLI = CLI.CLAUDE, input_file: str = None) -> st
         else:
             result = subprocess.run(cmd, capture_output=True, text=True)
         return result.stdout.strip()
+
+    elif cli == CLI.GROK:
+        if input_file:
+            with open(input_file) as f:
+                combined_prompt = prompt + "\n\n" + f.read()
+            cmd = ["grok", "-p", combined_prompt, "--output-format", "json", "--no-plan", "--max-turns", "10"]
+        else:
+            cmd = ["grok", "-p", prompt, "--output-format", "json", "--no-plan", "--max-turns", "10"]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        return json.loads(result.stdout).get("text", "")
 
 # Usage
 response = run_prompt("Summarize this code", CLI.GEMINI, "main.py")

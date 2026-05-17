@@ -38,7 +38,7 @@ mkdir -p "$OUTDIR"
 for f in $PATTERN; do
   name=$(basename "$f" | sed 's/[^a-zA-Z0-9]/-/g')
   echo "Processing $f..."
-  cat "$f" | codex exec - "$PROMPT" \
+  cat "$f" | codex exec "$PROMPT" \
     --ephemeral \
     -o "$OUTDIR/$name.txt" &
 done
@@ -55,7 +55,7 @@ ls "$OUTDIR/"
 # iterative-review.sh — Analyze, then fix, then verify
 
 codex exec "Read the codebase and identify the top 3 bugs"
-codex exec resume --last "Fix the highest-priority bug you found" --full-auto
+codex exec --sandbox workspace-write resume --last "Fix the highest-priority bug you found"
 codex exec resume --last "Verify the fix doesn't break any existing tests" -o review.md
 echo "Review saved to review.md"
 ```
@@ -124,9 +124,8 @@ events = codex_run_json("List all functions in main.py")
 for event in events:
     if event.get('type') == 'item.completed':
         item = event.get('item', {})
-        if item.get('type') == 'message':
-            for c in item.get('content', []):
-                print(c.get('text', ''))
+        if item.get('type') == 'agent_message':
+            print(item.get('text', ''))
 ```
 
 ### Batch Processing
@@ -140,7 +139,7 @@ def analyze_file(filepath: Path, prompt: str) -> tuple[str, str]:
     """Analyze a single file with Codex."""
     content = filepath.read_text()
     result = subprocess.run(
-        ["codex", "exec", "-", prompt, "--ephemeral"],
+        ["codex", "exec", prompt, "--ephemeral"],
         input=content, capture_output=True, text=True
     )
     return str(filepath), result.stdout.strip()
@@ -225,7 +224,7 @@ async function codexRunAsync(prompt) {
   run: |
     npm install -g @openai/codex
     git diff ${{ github.event.pull_request.base.sha }} HEAD | \
-      codex exec - "Review this diff for bugs" --ephemeral -o review.md
+      codex exec "Review this diff for bugs" --ephemeral -o review.md
 ```
 
 ### Pre-Commit Hook
@@ -238,7 +237,7 @@ DIFF=$(git diff --cached)
 if [ -z "$DIFF" ]; then exit 0; fi
 
 echo "Running AI pre-commit review..."
-echo "$DIFF" | codex exec - \
+echo "$DIFF" | codex exec \
   "Review this diff. If there are critical issues, list them. If it looks good, say LGTM." \
   --ephemeral
 ```

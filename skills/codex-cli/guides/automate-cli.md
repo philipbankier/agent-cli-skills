@@ -12,10 +12,10 @@ codex exec "Explain what this project does"
 codex e "Explain what this project does"
 
 # Pipe content from stdin
-cat README.md | codex exec - "Summarize this document"
+cat README.md | codex exec "Summarize stdin"
 
-# With auto-approval for write operations
-codex exec "Fix the linting errors in src/" --full-auto
+# With project write access
+codex exec "Fix the linting errors in src/" --sandbox workspace-write
 ```
 
 ## Output Capture
@@ -68,8 +68,8 @@ codex exec "Add error handling to api.ts" -s workspace-write
 ### Full Auto
 
 ```bash
-# Preset for automation: workspace-write sandbox + on-request approvals
-codex exec "Refactor the database module" --full-auto
+# Current explicit automation mode for project writes
+codex exec "Refactor the database module" --sandbox workspace-write
 ```
 
 ### Full Autonomy (Dangerous)
@@ -77,7 +77,7 @@ codex exec "Refactor the database module" --full-auto
 ```bash
 # No approvals, no sandbox — only use in isolated/CI environments
 codex exec "Fix all failing tests and commit the fixes" \
-  --full-auto --dangerously-bypass-approvals-and-sandbox
+  --dangerously-bypass-approvals-and-sandbox
 ```
 
 ## Batch Processing
@@ -173,7 +173,7 @@ ai-review:
 codex exec -m o3 "Use o3 for this task"
 
 # Combine with other flags
-codex exec -m o3 --full-auto --ephemeral "Quick analysis"
+codex exec -m o3 --sandbox read-only --ephemeral "Quick analysis"
 ```
 
 ## Error Handling
@@ -197,4 +197,6 @@ timeout 120 codex exec "Review the entire codebase" --ephemeral || {
 - **Always use `--ephemeral` for stateless automation** — prevents session files from accumulating
 - **Use `-o` for downstream processing** — cleaner than parsing stdout
 - **Prefer API key auth for CI/CD** — `OPENAI_API_KEY` is more reliable than device-code login in automated environments
-- **Pin your Codex CLI version** — `npm install -g @openai/codex@0.20` prevents breaking changes in CI
+- **Pin your Codex CLI version** — `npm install -g @openai/codex@0.130.0` prevents unreviewed CLI drift in CI
+- **Avoid old stdin recipes** — in v0.130, use `cat file | codex exec "prompt"` when a prompt is present; `codex exec "prompt" -` fails
+- **Prefer explicit sandbox flags** — `--full-auto` is deprecated compatibility; use `--sandbox workspace-write` or `--sandbox read-only`

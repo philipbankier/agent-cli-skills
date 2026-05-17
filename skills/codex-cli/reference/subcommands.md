@@ -3,8 +3,8 @@
 # Codex CLI Subcommand Reference
 
 Complete subcommand tree for `codex` and `codex exec`.
-Last verified against `codex --help` and per-subcommand `--help` for **Codex CLI v0.114.0** on 2026-04-14.
-Upstream is currently v0.120.0; subcommands added in v0.115–v0.120 are tracked in [changelog.md](changelog.md) (created in a later commit).
+Last verified against `codex --help` and selected per-subcommand `--help` for **Codex CLI v0.130.0** on 2026-05-17.
+The latest npm `@openai/codex` stable tag was v0.130.0; the alpha tag was v0.131.0-alpha.22 on 2026-05-17.
 
 ## Subcommand Tree
 
@@ -19,12 +19,15 @@ codex [OPTIONS] <COMMAND> [ARGS]                   # subcommand mode
 ├── login                    Manage login (start OAuth flow)
 ├── logout                   Remove stored authentication credentials
 ├── mcp                      Manage external MCP servers for Codex
+├── plugin                   Manage Codex plugins
 ├── mcp-server               Start Codex itself as an MCP server (stdio)
 ├── app-server  [experimental]  Run the app server / generate protocol bindings
 │   ├── generate-ts          Generate TypeScript bindings for the app server protocol
 │   └── generate-json-schema Generate JSON Schema for the app server protocol
+├── remote-control [experimental] Start a headless app-server with remote control enabled
 ├── app                      Launch the Codex desktop app (downloads installer if missing)
 ├── completion               Generate shell completion scripts
+├── update                   Update Codex to the latest version
 ├── sandbox                  Run commands within a Codex-provided OS sandbox
 │   ├── macos, seatbelt      Run a command under macOS Seatbelt
 │   ├── linux, landlock      Run a command under Linux Landlock+seccomp
@@ -40,6 +43,7 @@ codex [OPTIONS] <COMMAND> [ARGS]                   # subcommand mode
 │   ├── list                 List Codex Cloud tasks
 │   ├── apply                Apply the diff for a Codex Cloud task locally
 │   └── diff                 Show the unified diff for a Codex Cloud task
+├── exec-server [EXPERIMENTAL] Run the standalone exec-server service
 └── features                 Inspect feature flags
     ├── list                 List known features with their stage and effective state
     ├── enable               Enable a feature in config.toml
@@ -62,6 +66,16 @@ Both top-level `codex resume` and `codex exec resume` exist. They are **differen
 
 Use the form that matches the context. The `--last` flag works for both.
 
+When adding parent `exec` options to non-interactive resume, put them before
+`resume`:
+
+```bash
+codex exec --sandbox read-only resume --last "Follow-up prompt"
+```
+
+`codex exec resume --last "Follow-up prompt" --sandbox read-only` failed locally
+with `unexpected argument '--sandbox' found`.
+
 ---
 
 ## `codex exec`
@@ -70,6 +84,13 @@ Already documented in detail in [exec-mode-flags.md](exec-mode-flags.md). Aliase
 
 - `codex exec resume [SESSION_ID] [PROMPT]` — non-interactive resume of a previous session. If `[PROMPT]` is `-`, read from stdin.
 - `codex exec review [PROMPT]` — run a code review in exec mode. Same as the top-level `codex review`, but lives under exec for discoverability.
+
+For initial `codex exec`, v0.130 can append piped stdin to a prompt without using
+`-`:
+
+```bash
+printf 'one\ntwo\nthree\n' | codex exec "Count the input lines."
+```
 
 ---
 
